@@ -39,7 +39,6 @@ feedback-export-*
 .claude/settings.local.json
 .taskcore-local/
 /.idea/
-/.agents/
 
 # Doc maintenance cursor
 .doc-review-cursor
