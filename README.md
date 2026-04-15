@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
-  <a href="https://taskcore.ing/docs"><strong>Docs</strong></a> &middot;
+  <a href="https://taskcore.khulnasoft.com/docs"><strong>Docs</strong></a> &middot;
   <a href="https://github.com/khulnasoft/taskcore"><strong>GitHub</strong></a> &middot;
   <a href="https://discord.gg/m4HZY7xNG3"><strong>Discord</strong></a>
 </p>
@@ -305,7 +305,7 @@ We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for deta
 
 ## License
 
-MIT &copy; 2026 Taskcore
+MIT &copy; 2026 KhulnaSoft, Ltd
 
 ## Star History
 
