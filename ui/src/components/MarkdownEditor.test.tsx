@@ -254,7 +254,7 @@ describe("MarkdownEditor", () => {
     await act(async () => {
       root.render(
         <MarkdownEditor
-          value="Affected versions: <= v0.3.1"
+          value="Affected versions: <= v0.2.1"
           onChange={handleChange}
           placeholder="Markdown body"
         />,
@@ -269,7 +269,7 @@ describe("MarkdownEditor", () => {
 
     const textarea = container.querySelector("textarea");
     expect(textarea).not.toBeNull();
-    expect(textarea?.value).toBe("Affected versions: <= v0.3.1");
+    expect(textarea?.value).toBe("Affected versions: <= v0.2.1");
     expect(container.textContent).toContain("Rich editor unavailable for this markdown");
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -286,7 +286,7 @@ describe("MarkdownEditor", () => {
     await act(async () => {
       root.render(
         <MarkdownEditor
-          value="Affected versions: <= v0.3.1"
+          value="Affected versions: <= v0.2.1"
           onChange={handleChange}
           placeholder="Add a description..."
         />,
@@ -301,7 +301,7 @@ describe("MarkdownEditor", () => {
 
     const textarea = container.querySelector("textarea");
     expect(textarea).not.toBeNull();
-    expect(textarea?.value).toBe("Affected versions: <= v0.3.1");
+    expect(textarea?.value).toBe("Affected versions: <= v0.2.1");
     expect(container.textContent).toContain("Rich editor unavailable for this markdown");
     expect(handleChange).not.toHaveBeenCalled();
 
