@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: taskcore
+      POSTGRES_PASSWORD: taskcore
+      POSTGRES_DB: taskcore
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskcore -d taskcore"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "3100:3100"
+    environment:
+      DATABASE_URL: postgres://taskcore:taskcore@db:5432/taskcore
+      PORT: "3100"
+      SERVE_UI: "true"
+      TASKCORE_DEPLOYMENT_MODE: "authenticated"
+      TASKCORE_DEPLOYMENT_EXPOSURE: "private"
+      TASKCORE_PUBLIC_URL: "${TASKCORE_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+    volumes:
+      - taskcore-data:/taskcore
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  taskcore-data:

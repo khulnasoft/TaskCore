@@ -1,0 +1,18 @@
+services:
+  taskcore:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "${TASKCORE_PORT:-3100}:3100"
+    environment:
+      HOST: "0.0.0.0"
+      TASKCORE_HOME: "/taskcore"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      TASKCORE_DEPLOYMENT_MODE: "authenticated"
+      TASKCORE_DEPLOYMENT_EXPOSURE: "private"
+      TASKCORE_PUBLIC_URL: "${TASKCORE_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+    volumes:
+      - "${TASKCORE_DATA_DIR:-../data/docker-taskcore}:/taskcore"

@@ -1,0 +1,23 @@
+[Unit]
+Description=Taskcore AI Agent Orchestrator
+Requires=taskcore-db.service
+After=taskcore-db.service
+
+[Container]
+Image=taskcore-local
+ContainerName=taskcore
+Pod=taskcore.pod
+Volume=%h/.local/share/taskcore:/taskcore:Z
+Environment=HOST=0.0.0.0
+Environment=TASKCORE_HOME=/taskcore
+Environment=TASKCORE_DEPLOYMENT_MODE=authenticated
+Environment=TASKCORE_DEPLOYMENT_EXPOSURE=private
+Environment=TASKCORE_PUBLIC_URL=http://localhost:3100
+EnvironmentFile=%h/.config/containers/systemd/taskcore.env
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target
