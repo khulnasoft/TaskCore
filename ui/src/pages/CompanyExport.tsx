@@ -429,7 +429,7 @@ function generateReadmeFromSelection(
 
   lines.push("## What's Inside");
   lines.push("");
-  lines.push("This is an [Agent Company](https://taskcore.ing) package.");
+  lines.push("This is an [Agent Company](https://taskcore.khulnasoft.com) package.");
   lines.push("");
 
   const counts: Array<[string, number]> = [];
@@ -476,10 +476,10 @@ function generateReadmeFromSelection(
   lines.push("pnpm taskcore company import this-github-url-or-folder");
   lines.push("```");
   lines.push("");
-  lines.push("See [Taskcore](https://taskcore.ing) for more information.");
+  lines.push("See [Taskcore](https://taskcore.khulnasoft.com) for more information.");
   lines.push("");
   lines.push("---");
-  lines.push(`Exported from [Taskcore](https://taskcore.ing) on ${new Date().toISOString().split("T")[0]}`);
+  lines.push(`Exported from [Taskcore](https://taskcore.khulnasoft.com) on ${new Date().toISOString().split("T")[0]}`);
   lines.push("");
 
   return lines.join("\n");
