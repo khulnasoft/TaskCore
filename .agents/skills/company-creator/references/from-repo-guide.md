@@ -30,11 +30,13 @@ metadata:
 ```
 
 To get the commit SHA:
+
 ```bash
 git ls-remote https://github.com/owner/repo HEAD
 ```
 
 Only vendor (copy) skills when:
+
 - The user explicitly asks to copy them
 - The skill is very small and tightly coupled to the company
 - The source repo is private or may become unavailable
@@ -42,6 +44,7 @@ Only vendor (copy) skills when:
 ## Handling Existing Agent Configurations
 
 If the repo has agent configs (CLAUDE.md, .claude/ directories, codex configs, etc.):
+
 - Use them as inspiration for AGENTS.md instructions
 - Don't copy them verbatim - adapt them to the Agent Companies format
 - Preserve the intent and key instructions
@@ -49,31 +52,37 @@ If the repo has agent configs (CLAUDE.md, .claude/ directories, codex configs, e
 ## Repo-Only Skills (No Agents)
 
 When a repo contains only skills and no agents:
+
 - Create agents that would naturally use those skills
 - The agents should be minimal - just enough to give the skills a runtime context
 - A single agent may use multiple skills from the repo
 - Name agents based on the domain the skills cover
 
 Example: A repo with `code-review`, `testing`, and `deployment` skills might become:
+
 - A "Lead Engineer" agent with all three skills
 - Or separate "Reviewer", "QA Engineer", and "DevOps" agents if the skills are distinct enough
 
 ## Common Repo Patterns
 
 ### Developer Tools / CLI repos
+
 - Create agents for the tool's primary use cases
 - Reference any existing skills
 - Add a project maintainer or lead agent
 
 ### Library / Framework repos
+
 - Create agents for development, testing, documentation
 - Skills from the repo become agent capabilities
 
 ### Full Application repos
+
 - Map to departments: engineering, product, QA
 - Create a lean team structure appropriate to the project size
 
 ### Skills Collection repos (e.g. skills.sh repos)
+
 - Each skill or skill group gets an agent
 - Create a lightweight company or team wrapper
 - Keep the agent count proportional to the skill diversity

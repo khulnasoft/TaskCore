@@ -14,11 +14,7 @@ export const binaryContentTypeByExtension: Record<string, string> = {
 };
 
 function normalizeArchivePath(pathValue: string) {
-  return pathValue
-    .replace(/\\/g, "/")
-    .split("/")
-    .filter(Boolean)
-    .join("/");
+  return pathValue.replace(/\\/g, "/").split("/").filter(Boolean).join("/");
 }
 
 function readUint16(source: Uint8Array, offset: number) {
@@ -27,11 +23,12 @@ function readUint16(source: Uint8Array, offset: number) {
 
 function readUint32(source: Uint8Array, offset: number) {
   return (
-    source[offset]! |
-    (source[offset + 1]! << 8) |
-    (source[offset + 2]! << 16) |
-    (source[offset + 3]! << 24)
-  ) >>> 0;
+    (source[offset]! |
+      (source[offset + 1]! << 8) |
+      (source[offset + 2]! << 16) |
+      (source[offset + 3]! << 24)) >>>
+    0
+  );
 }
 
 function sharedArchiveRoot(paths: string[]) {
@@ -41,13 +38,19 @@ function sharedArchiveRoot(paths: string[]) {
     .filter((parts) => parts.length > 0);
   if (firstSegments.length === 0) return null;
   const candidate = firstSegments[0]![0]!;
-  return firstSegments.every((parts) => parts.length > 1 && parts[0] === candidate)
+  return firstSegments.every(
+    (parts) => parts.length > 1 && parts[0] === candidate,
+  )
     ? candidate
     : null;
 }
 
-function bytesToPortableFileEntry(pathValue: string, bytes: Uint8Array): CompanyPortabilityFileEntry {
-  const contentType = binaryContentTypeByExtension[path.extname(pathValue).toLowerCase()];
+function bytesToPortableFileEntry(
+  pathValue: string,
+  bytes: Uint8Array,
+): CompanyPortabilityFileEntry {
+  const contentType =
+    binaryContentTypeByExtension[path.extname(pathValue).toLowerCase()];
   if (!contentType) return textDecoder.decode(bytes);
   return {
     encoding: "base64",
@@ -59,17 +62,22 @@ function bytesToPortableFileEntry(pathValue: string, bytes: Uint8Array): Company
 async function inflateZipEntry(compressionMethod: number, bytes: Uint8Array) {
   if (compressionMethod === 0) return bytes;
   if (compressionMethod !== 8) {
-    throw new Error("Unsupported zip archive: only STORE and DEFLATE entries are supported.");
+    throw new Error(
+      "Unsupported zip archive: only STORE and DEFLATE entries are supported.",
+    );
   }
   return new Uint8Array(inflateRawSync(bytes));
 }
 
-export async function readZipArchive(source: ArrayBuffer | Uint8Array): Promise<{
+export async function readZipArchive(
+  source: ArrayBuffer | Uint8Array,
+): Promise<{
   rootPath: string | null;
   files: Record<string, CompanyPortabilityFileEntry>;
 }> {
   const bytes = source instanceof Uint8Array ? source : new Uint8Array(source);
-  const entries: Array<{ path: string; body: CompanyPortabilityFileEntry }> = [];
+  const entries: Array<{ path: string; body: CompanyPortabilityFileEntry }> =
+    [];
   let offset = 0;
 
   while (offset + 4 <= bytes.length) {
@@ -90,7 +98,9 @@ export async function readZipArchive(source: ArrayBuffer | Uint8Array): Promise<
     const extraFieldLength = readUint16(bytes, offset + 28);
 
     if ((generalPurposeFlag & 0x0008) !== 0) {
-      throw new Error("Unsupported zip archive: data descriptors are not supported.");
+      throw new Error(
+        "Unsupported zip archive: data descriptors are not supported.",
+      );
     }
 
     const nameOffset = offset + 30;
@@ -100,11 +110,16 @@ export async function readZipArchive(source: ArrayBuffer | Uint8Array): Promise<
       throw new Error("Invalid zip archive: truncated file contents.");
     }
 
-    const rawArchivePath = textDecoder.decode(bytes.slice(nameOffset, nameOffset + fileNameLength));
+    const rawArchivePath = textDecoder.decode(
+      bytes.slice(nameOffset, nameOffset + fileNameLength),
+    );
     const archivePath = normalizeArchivePath(rawArchivePath);
     const isDirectoryEntry = /\/$/.test(rawArchivePath.replace(/\\/g, "/"));
     if (archivePath && !isDirectoryEntry) {
-      const entryBytes = await inflateZipEntry(compressionMethod, bytes.slice(bodyOffset, bodyEnd));
+      const entryBytes = await inflateZipEntry(
+        compressionMethod,
+        bytes.slice(bodyOffset, bodyEnd),
+      );
       entries.push({
         path: archivePath,
         body: bytesToPortableFileEntry(archivePath, entryBytes),

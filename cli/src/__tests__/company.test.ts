@@ -55,7 +55,7 @@ describe("resolveCompanyImportApiPath", () => {
         dryRun: true,
         targetMode: "existing_company",
         companyId: " ",
-      })
+      }),
     ).toThrow(/require a companyId/i);
   });
 });
@@ -87,7 +87,7 @@ describe("resolveCompanyImportApplyConfirmationMode", () => {
         yes: false,
         interactive: false,
         json: false,
-      })
+      }),
     ).toThrow(/non-interactive terminal requires --yes/i);
   });
 
@@ -97,16 +97,16 @@ describe("resolveCompanyImportApplyConfirmationMode", () => {
         yes: false,
         interactive: false,
         json: true,
-      })
+      }),
     ).toThrow(/with --json requires --yes/i);
   });
 });
 
 describe("buildCompanyDashboardUrl", () => {
   it("preserves the configured base path when building a dashboard URL", () => {
-    expect(buildCompanyDashboardUrl("https://taskcore.example/app/", "PAP")).toBe(
-      "https://taskcore.example/app/PAP/dashboard",
-    );
+    expect(
+      buildCompanyDashboardUrl("https://taskcore.example/app/", "PAP"),
+    ).toBe("https://taskcore.example/app/PAP/dashboard");
   });
 });
 
@@ -123,23 +123,84 @@ describe("renderCompanyImportPreview", () => {
       targetCompanyId: "company-123",
       targetCompanyName: "Imported Co",
       collisionStrategy: "rename",
-      selectedAgentSlugs: ["ceo", "cto", "eng-1", "eng-2", "eng-3", "eng-4", "eng-5"],
+      selectedAgentSlugs: [
+        "ceo",
+        "cto",
+        "eng-1",
+        "eng-2",
+        "eng-3",
+        "eng-4",
+        "eng-5",
+      ],
       plan: {
         companyAction: "update",
         agentPlans: [
-          { slug: "ceo", action: "create", plannedName: "CEO", existingAgentId: null, reason: null },
-          { slug: "cto", action: "update", plannedName: "CTO", existingAgentId: "agent-2", reason: "replace strategy" },
-          { slug: "eng-1", action: "skip", plannedName: "Engineer 1", existingAgentId: "agent-3", reason: "skip strategy" },
-          { slug: "eng-2", action: "create", plannedName: "Engineer 2", existingAgentId: null, reason: null },
-          { slug: "eng-3", action: "create", plannedName: "Engineer 3", existingAgentId: null, reason: null },
-          { slug: "eng-4", action: "create", plannedName: "Engineer 4", existingAgentId: null, reason: null },
-          { slug: "eng-5", action: "create", plannedName: "Engineer 5", existingAgentId: null, reason: null },
+          {
+            slug: "ceo",
+            action: "create",
+            plannedName: "CEO",
+            existingAgentId: null,
+            reason: null,
+          },
+          {
+            slug: "cto",
+            action: "update",
+            plannedName: "CTO",
+            existingAgentId: "agent-2",
+            reason: "replace strategy",
+          },
+          {
+            slug: "eng-1",
+            action: "skip",
+            plannedName: "Engineer 1",
+            existingAgentId: "agent-3",
+            reason: "skip strategy",
+          },
+          {
+            slug: "eng-2",
+            action: "create",
+            plannedName: "Engineer 2",
+            existingAgentId: null,
+            reason: null,
+          },
+          {
+            slug: "eng-3",
+            action: "create",
+            plannedName: "Engineer 3",
+            existingAgentId: null,
+            reason: null,
+          },
+          {
+            slug: "eng-4",
+            action: "create",
+            plannedName: "Engineer 4",
+            existingAgentId: null,
+            reason: null,
+          },
+          {
+            slug: "eng-5",
+            action: "create",
+            plannedName: "Engineer 5",
+            existingAgentId: null,
+            reason: null,
+          },
         ],
         projectPlans: [
-          { slug: "alpha", action: "create", plannedName: "Alpha", existingProjectId: null, reason: null },
+          {
+            slug: "alpha",
+            action: "create",
+            plannedName: "Alpha",
+            existingProjectId: null,
+            reason: null,
+          },
         ],
         issuePlans: [
-          { slug: "kickoff", action: "create", plannedTitle: "Kickoff", reason: null },
+          {
+            slug: "kickoff",
+            action: "create",
+            plannedTitle: "Kickoff",
+            reason: null,
+          },
         ],
       },
       manifest: {
@@ -307,14 +368,50 @@ describe("renderCompanyImportResult", () => {
           action: "updated",
         },
         agents: [
-          { slug: "ceo", id: "agent-1", action: "created", name: "CEO", reason: null },
-          { slug: "cto", id: "agent-2", action: "updated", name: "CTO", reason: "replace strategy" },
-          { slug: "ops", id: null, action: "skipped", name: "Ops", reason: "skip strategy" },
+          {
+            slug: "ceo",
+            id: "agent-1",
+            action: "created",
+            name: "CEO",
+            reason: null,
+          },
+          {
+            slug: "cto",
+            id: "agent-2",
+            action: "updated",
+            name: "CTO",
+            reason: "replace strategy",
+          },
+          {
+            slug: "ops",
+            id: null,
+            action: "skipped",
+            name: "Ops",
+            reason: "skip strategy",
+          },
         ],
         projects: [
-          { slug: "app", id: "project-1", action: "created", name: "App", reason: null },
-          { slug: "ops", id: "project-2", action: "updated", name: "Operations", reason: "replace strategy" },
-          { slug: "archive", id: null, action: "skipped", name: "Archive", reason: "skip strategy" },
+          {
+            slug: "app",
+            id: "project-1",
+            action: "created",
+            name: "App",
+            reason: null,
+          },
+          {
+            slug: "ops",
+            id: "project-2",
+            action: "updated",
+            name: "Operations",
+            reason: "replace strategy",
+          },
+          {
+            slug: "archive",
+            id: null,
+            action: "skipped",
+            name: "Archive",
+            reason: "skip strategy",
+          },
         ],
         envInputs: [],
         warnings: ["Review API keys"],
@@ -328,8 +425,12 @@ describe("renderCompanyImportResult", () => {
 
     expect(rendered).toContain("Company");
     expect(rendered).toContain("https://taskcore.example/PAP/dashboard");
-    expect(rendered).toContain("3 agents total (1 created, 1 updated, 1 skipped)");
-    expect(rendered).toContain("3 projects total (1 created, 1 updated, 1 skipped)");
+    expect(rendered).toContain(
+      "3 agents total (1 created, 1 updated, 1 skipped)",
+    );
+    expect(rendered).toContain(
+      "3 projects total (1 created, 1 updated, 1 skipped)",
+    );
     expect(rendered).toContain("Agent results");
     expect(rendered).toContain("Project results");
     expect(rendered).toContain("Using claude-local adapter");
@@ -505,8 +606,12 @@ describe("import selection catalog", () => {
     expect(selectedFiles).toContain(".taskcore.yaml");
     expect(selectedFiles).toContain("projects/alpha/PROJECT.md");
     expect(selectedFiles).toContain("projects/alpha/notes.md");
-    expect(selectedFiles).not.toContain("projects/alpha/issues/kickoff/TASK.md");
-    expect(selectedFiles).not.toContain("projects/alpha/issues/kickoff/details.md");
+    expect(selectedFiles).not.toContain(
+      "projects/alpha/issues/kickoff/TASK.md",
+    );
+    expect(selectedFiles).not.toContain(
+      "projects/alpha/issues/kickoff/details.md",
+    );
   });
 });
 

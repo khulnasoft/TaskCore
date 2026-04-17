@@ -29,9 +29,10 @@ The following intentions are explicitly preserved in this spec:
 10. CLI errors must be visible in full (or as much as possible) in the UI.
 11. Status changes must live-update across task and agent views via server push.
 12. Wakeup triggers should be centralized by a heartbeat/wakeup service with at least:
-   - timer interval
-   - wake on task assignment
-   - explicit ping/request
+
+- timer interval
+- wake on task assignment
+- explicit ping/request
 
 ## 3. Goals and Non-Goals
 
@@ -144,9 +145,15 @@ interface AdapterInvokeInput {
 
 interface AdapterHooks {
   status?: (update: { message: string; color?: StatusColor }) => Promise<void>;
-  log?: (event: { stream: "stdout" | "stderr" | "system"; chunk: string }) => Promise<void>;
+  log?: (event: {
+    stream: "stdout" | "stderr" | "system";
+    chunk: string;
+  }) => Promise<void>;
   usage?: (usage: TokenUsage) => Promise<void>;
-  event?: (eventType: string, payload: Record<string, unknown>) => Promise<void>;
+  event?: (
+    eventType: string,
+    payload: Record<string, unknown>,
+  ) => Promise<void>;
 }
 
 interface AdapterInvokeResult {
@@ -172,8 +179,14 @@ interface AgentRunAdapter {
     logStreaming: boolean;
     tokenUsage: boolean;
   };
-  validateConfig(config: unknown): { ok: true } | { ok: false; errors: string[] };
-  invoke(input: AdapterInvokeInput, hooks: AdapterHooks, signal: AbortSignal): Promise<AdapterInvokeResult>;
+  validateConfig(
+    config: unknown,
+  ): { ok: true } | { ok: false; errors: string[] };
+  invoke(
+    input: AdapterInvokeInput,
+    hooks: AdapterHooks,
+    signal: AbortSignal,
+  ): Promise<AdapterInvokeResult>;
 }
 ```
 
@@ -202,10 +215,18 @@ interface RunLogHandle {
 }
 
 interface RunLogStore {
-  begin(input: { companyId: string; agentId: string; runId: string }): Promise<RunLogHandle>;
+  begin(input: {
+    companyId: string;
+    agentId: string;
+    runId: string;
+  }): Promise<RunLogHandle>;
   append(
     handle: RunLogHandle,
-    event: { stream: "stdout" | "stderr" | "system"; chunk: string; ts: string },
+    event: {
+      stream: "stdout" | "stderr" | "system";
+      chunk: string;
+      ts: string;
+    },
   ): Promise<void>;
   finalize(
     handle: RunLogHandle,
@@ -251,7 +272,7 @@ Runs local `claude` CLI directly.
   "model": "optional-model-id",
   "maxTurnsPerRun": 1000,
   "dangerouslySkipPermissions": true,
-  "env": {"KEY": "VALUE"},
+  "env": { "KEY": "VALUE" },
   "extraArgs": [],
   "timeoutSec": 1800,
   "graceSec": 20
@@ -288,7 +309,7 @@ Runs local `codex` CLI directly.
   "model": "optional-model-id",
   "search": false,
   "dangerouslyBypassApprovalsAndSandbox": true,
-  "env": {"KEY": "VALUE"},
+  "env": { "KEY": "VALUE" },
   "extraArgs": [],
   "timeoutSec": 1800,
   "graceSec": 20

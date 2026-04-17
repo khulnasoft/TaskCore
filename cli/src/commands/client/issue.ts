@@ -91,13 +91,17 @@ export function registerIssueCommands(program: Command): void {
       .option("--status <csv>", "Comma-separated statuses")
       .option("--assignee-agent-id <id>", "Filter by assignee agent ID")
       .option("--project-id <id>", "Filter by project ID")
-      .option("--match <text>", "Local text match on identifier/title/description")
+      .option(
+        "--match <text>",
+        "Local text match on identifier/title/description",
+      )
       .action(async (opts: IssueBaseOptions) => {
         try {
           const ctx = resolveCommandContext(opts, { requireCompany: true });
           const params = new URLSearchParams();
           if (opts.status) params.set("status", opts.status);
-          if (opts.assigneeAgentId) params.set("assigneeAgentId", opts.assigneeAgentId);
+          if (opts.assigneeAgentId)
+            params.set("assigneeAgentId", opts.assigneeAgentId);
           if (opts.projectId) params.set("projectId", opts.projectId);
 
           const query = params.toString();
@@ -182,7 +186,10 @@ export function registerIssueCommands(program: Command): void {
             billingCode: opts.billingCode,
           });
 
-          const created = await ctx.api.post<Issue>(`/api/companies/${ctx.companyId}/issues`, payload);
+          const created = await ctx.api.post<Issue>(
+            `/api/companies/${ctx.companyId}/issues`,
+            payload,
+          );
           printOutput(created, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -207,7 +214,10 @@ export function registerIssueCommands(program: Command): void {
       .option("--request-depth <n>", "Request depth integer")
       .option("--billing-code <code>", "Billing code")
       .option("--comment <text>", "Optional comment to add with update")
-      .option("--hidden-at <iso8601|null>", "Set hiddenAt timestamp or literal 'null'")
+      .option(
+        "--hidden-at <iso8601|null>",
+        "Set hiddenAt timestamp or literal 'null'",
+      )
       .action(async (issueId: string, opts: IssueUpdateOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
@@ -226,7 +236,9 @@ export function registerIssueCommands(program: Command): void {
             hiddenAt: parseHiddenAt(opts.hiddenAt),
           });
 
-          const updated = await ctx.api.patch<Issue & { comment?: IssueComment | null }>(`/api/issues/${issueId}`, payload);
+          const updated = await ctx.api.patch<
+            Issue & { comment?: IssueComment | null }
+          >(`/api/issues/${issueId}`, payload);
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -248,7 +260,10 @@ export function registerIssueCommands(program: Command): void {
             body: opts.body,
             reopen: opts.reopen,
           });
-          const comment = await ctx.api.post<IssueComment>(`/api/issues/${issueId}/comments`, payload);
+          const comment = await ctx.api.post<IssueComment>(
+            `/api/issues/${issueId}/comments`,
+            payload,
+          );
           printOutput(comment, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -264,16 +279,29 @@ export function registerIssueCommands(program: Command): void {
       .option("--target-type <type>", "Filter by target type")
       .option("--vote <vote>", "Filter by vote value")
       .option("--status <status>", "Filter by trace status")
-      .option("--from <iso8601>", "Only include traces created at or after this timestamp")
-      .option("--to <iso8601>", "Only include traces created at or before this timestamp")
-      .option("--shared-only", "Only include traces eligible for sharing/export")
-      .option("--include-payload", "Include stored payload snapshots in the response")
+      .option(
+        "--from <iso8601>",
+        "Only include traces created at or after this timestamp",
+      )
+      .option(
+        "--to <iso8601>",
+        "Only include traces created at or before this timestamp",
+      )
+      .option(
+        "--shared-only",
+        "Only include traces eligible for sharing/export",
+      )
+      .option(
+        "--include-payload",
+        "Include stored payload snapshots in the response",
+      )
       .action(async (issueId: string, opts: IssueFeedbackOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const traces = (await ctx.api.get<FeedbackTrace[]>(
-            `/api/issues/${issueId}/feedback-traces${buildFeedbackTraceQuery(opts)}`,
-          )) ?? [];
+          const traces =
+            (await ctx.api.get<FeedbackTrace[]>(
+              `/api/issues/${issueId}/feedback-traces${buildFeedbackTraceQuery(opts)}`,
+            )) ?? [];
           if (ctx.json) {
             printOutput(traces, { json: true });
             return;
@@ -303,32 +331,53 @@ export function registerIssueCommands(program: Command): void {
       .option("--target-type <type>", "Filter by target type")
       .option("--vote <vote>", "Filter by vote value")
       .option("--status <status>", "Filter by trace status")
-      .option("--from <iso8601>", "Only include traces created at or after this timestamp")
-      .option("--to <iso8601>", "Only include traces created at or before this timestamp")
-      .option("--shared-only", "Only include traces eligible for sharing/export")
-      .option("--include-payload", "Include stored payload snapshots in the export")
+      .option(
+        "--from <iso8601>",
+        "Only include traces created at or after this timestamp",
+      )
+      .option(
+        "--to <iso8601>",
+        "Only include traces created at or before this timestamp",
+      )
+      .option(
+        "--shared-only",
+        "Only include traces eligible for sharing/export",
+      )
+      .option(
+        "--include-payload",
+        "Include stored payload snapshots in the export",
+      )
       .option("--out <path>", "Write export to a file path instead of stdout")
       .option("--format <format>", "Export format: json or ndjson", "ndjson")
       .action(async (issueId: string, opts: IssueFeedbackOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const traces = (await ctx.api.get<FeedbackTrace[]>(
-            `/api/issues/${issueId}/feedback-traces${buildFeedbackTraceQuery(opts, opts.includePayload ?? true)}`,
-          )) ?? [];
+          const traces =
+            (await ctx.api.get<FeedbackTrace[]>(
+              `/api/issues/${issueId}/feedback-traces${buildFeedbackTraceQuery(opts, opts.includePayload ?? true)}`,
+            )) ?? [];
           const serialized = serializeFeedbackTraces(traces, opts.format);
           if (opts.out?.trim()) {
             await writeFile(opts.out, serialized, "utf8");
             if (ctx.json) {
               printOutput(
-                { out: opts.out, count: traces.length, format: normalizeFeedbackTraceExportFormat(opts.format) },
+                {
+                  out: opts.out,
+                  count: traces.length,
+                  format: normalizeFeedbackTraceExportFormat(opts.format),
+                },
                 { json: true },
               );
               return;
             }
-            console.log(`Wrote ${traces.length} feedback trace(s) to ${opts.out}`);
+            console.log(
+              `Wrote ${traces.length} feedback trace(s) to ${opts.out}`,
+            );
             return;
           }
-          process.stdout.write(`${serialized}${serialized.endsWith("\n") ? "" : "\n"}`);
+          process.stdout.write(
+            `${serialized}${serialized.endsWith("\n") ? "" : "\n"}`,
+          );
         } catch (err) {
           handleCommandError(err);
         }
@@ -353,7 +402,10 @@ export function registerIssueCommands(program: Command): void {
             agentId: opts.agentId,
             expectedStatuses: parseCsv(opts.expectedStatuses),
           });
-          const updated = await ctx.api.post<Issue>(`/api/issues/${issueId}/checkout`, payload);
+          const updated = await ctx.api.post<Issue>(
+            `/api/issues/${issueId}/checkout`,
+            payload,
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -369,7 +421,10 @@ export function registerIssueCommands(program: Command): void {
       .action(async (issueId: string, opts: BaseClientOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const updated = await ctx.api.post<Issue>(`/api/issues/${issueId}/release`, {});
+          const updated = await ctx.api.post<Issue>(
+            `/api/issues/${issueId}/release`,
+            {},
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -380,7 +435,10 @@ export function registerIssueCommands(program: Command): void {
 
 function parseCsv(value: string | undefined): string[] {
   if (!value) return [];
-  return value.split(",").map((v) => v.trim()).filter(Boolean);
+  return value
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
 }
 
 function parseOptionalInt(value: string | undefined): number | undefined {

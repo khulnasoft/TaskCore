@@ -30,7 +30,7 @@ import {
   serializeFeedbackTraces,
 } from "./feedback.js";
 
-interface CompanyCommandOptions extends BaseClientOptions { }
+interface CompanyCommandOptions extends BaseClientOptions {}
 type CompanyDeleteSelectorMode = "auto" | "id" | "prefix";
 type CompanyImportTargetMode = "new" | "existing";
 type CompanyCollisionMode = "rename" | "skip" | "replace";
@@ -99,12 +99,24 @@ const IMPORT_INCLUDE_OPTIONS: Array<{
   label: string;
   hint: string;
 }> = [
-    { value: "company", label: "Company", hint: "name, branding, and company settings" },
-    { value: "projects", label: "Projects", hint: "projects and workspace metadata" },
-    { value: "issues", label: "Tasks", hint: "tasks and recurring routines" },
-    { value: "agents", label: "Agents", hint: "agent records and org structure" },
-    { value: "skills", label: "Skills", hint: "company skill packages and references" },
-  ];
+  {
+    value: "company",
+    label: "Company",
+    hint: "name, branding, and company settings",
+  },
+  {
+    value: "projects",
+    label: "Projects",
+    hint: "projects and workspace metadata",
+  },
+  { value: "issues", label: "Tasks", hint: "tasks and recurring routines" },
+  { value: "agents", label: "Agents", hint: "agent records and org structure" },
+  {
+    value: "skills",
+    label: "Skills",
+    hint: "company skill packages and references",
+  },
+];
 
 const IMPORT_PREVIEW_SAMPLE_LIMIT = 6;
 
@@ -115,7 +127,12 @@ type ImportSelectionCatalog = {
     includedByDefault: boolean;
     files: string[];
   };
-  projects: Array<{ key: string; label: string; hint?: string; files: string[] }>;
+  projects: Array<{
+    key: string;
+    label: string;
+    hint?: string;
+    files: string[];
+  }>;
   issues: Array<{ key: string; label: string; hint?: string; files: string[] }>;
   agents: Array<{ key: string; label: string; hint?: string; files: string[] }>;
   skills: Array<{ key: string; label: string; hint?: string; files: string[] }>;
@@ -130,8 +147,12 @@ type ImportSelectionState = {
   skills: Set<string>;
 };
 
-function readPortableFileEntry(filePath: string, contents: Buffer): CompanyPortabilityFileEntry {
-  const contentType = binaryContentTypeByExtension[path.extname(filePath).toLowerCase()];
+function readPortableFileEntry(
+  filePath: string,
+  contents: Buffer,
+): CompanyPortabilityFileEntry {
+  const contentType =
+    binaryContentTypeByExtension[path.extname(filePath).toLowerCase()];
   if (!contentType) return contents.toString("utf8");
   return {
     encoding: "base64",
@@ -140,13 +161,17 @@ function readPortableFileEntry(filePath: string, contents: Buffer): CompanyPorta
   };
 }
 
-function portableFileEntryToWriteValue(entry: CompanyPortabilityFileEntry): string | Uint8Array {
+function portableFileEntryToWriteValue(
+  entry: CompanyPortabilityFileEntry,
+): string | Uint8Array {
   if (typeof entry === "string") return entry;
   return Buffer.from(entry.data, "base64");
 }
 
 function isUuidLike(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 function normalizeSelector(input: string): string {
@@ -158,7 +183,10 @@ function parseInclude(
   fallback: CompanyPortabilityInclude = DEFAULT_EXPORT_INCLUDE,
 ): CompanyPortabilityInclude {
   if (!input || !input.trim()) return { ...fallback };
-  const values = input.split(",").map((part) => part.trim().toLowerCase()).filter(Boolean);
+  const values = input
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
   const include = {
     company: values.includes("company"),
     agents: values.includes("agents"),
@@ -166,8 +194,16 @@ function parseInclude(
     issues: values.includes("issues") || values.includes("tasks"),
     skills: values.includes("skills"),
   };
-  if (!include.company && !include.agents && !include.projects && !include.issues && !include.skills) {
-    throw new Error("Invalid --include value. Use one or more of: company,agents,projects,issues,tasks,skills");
+  if (
+    !include.company &&
+    !include.agents &&
+    !include.projects &&
+    !include.issues &&
+    !include.skills
+  ) {
+    throw new Error(
+      "Invalid --include value. Use one or more of: company,agents,projects,issues,tasks,skills",
+    );
   }
   return include;
 }
@@ -176,21 +212,33 @@ function parseAgents(input: string | undefined): "all" | string[] {
   if (!input || !input.trim()) return "all";
   const normalized = input.trim().toLowerCase();
   if (normalized === "all") return "all";
-  const values = input.split(",").map((part) => part.trim()).filter(Boolean);
+  const values = input
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
   if (values.length === 0) return "all";
   return Array.from(new Set(values));
 }
 
 function parseCsvValues(input: string | undefined): string[] {
   if (!input || !input.trim()) return [];
-  return Array.from(new Set(input.split(",").map((part) => part.trim()).filter(Boolean)));
+  return Array.from(
+    new Set(
+      input
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean),
+    ),
+  );
 }
 
 function isInteractiveTerminal(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
 }
 
-function resolveImportInclude(input: string | undefined): CompanyPortabilityInclude {
+function resolveImportInclude(
+  input: string | undefined,
+): CompanyPortabilityInclude {
   return parseInclude(input, DEFAULT_IMPORT_INCLUDE);
 }
 
@@ -201,15 +249,24 @@ function normalizePortablePath(filePath: string): string {
 function shouldIncludePortableFile(filePath: string): boolean {
   const baseName = path.basename(filePath);
   const isMarkdown = baseName.endsWith(".md");
-  const isTaskcoreYaml = baseName === ".taskcore.yaml" || baseName === ".taskcore.yml";
-  const contentType = binaryContentTypeByExtension[path.extname(baseName).toLowerCase()];
+  const isTaskcoreYaml =
+    baseName === ".taskcore.yaml" || baseName === ".taskcore.yml";
+  const contentType =
+    binaryContentTypeByExtension[path.extname(baseName).toLowerCase()];
   return isMarkdown || isTaskcoreYaml || Boolean(contentType);
 }
 
-function findPortableExtensionPath(files: Record<string, CompanyPortabilityFileEntry>): string | null {
+function findPortableExtensionPath(
+  files: Record<string, CompanyPortabilityFileEntry>,
+): string | null {
   if (files[".taskcore.yaml"] !== undefined) return ".taskcore.yaml";
   if (files[".taskcore.yml"] !== undefined) return ".taskcore.yml";
-  return Object.keys(files).find((entry) => entry.endsWith("/.taskcore.yaml") || entry.endsWith("/.taskcore.yml")) ?? null;
+  return (
+    Object.keys(files).find(
+      (entry) =>
+        entry.endsWith("/.taskcore.yaml") || entry.endsWith("/.taskcore.yml"),
+    ) ?? null
+  );
 }
 
 function collectFilesUnderDirectory(
@@ -217,14 +274,24 @@ function collectFilesUnderDirectory(
   directory: string,
   opts?: { excludePrefixes?: string[] },
 ): string[] {
-  const normalizedDirectory = normalizePortablePath(directory).replace(/\/+$/, "");
+  const normalizedDirectory = normalizePortablePath(directory).replace(
+    /\/+$/,
+    "",
+  );
   if (!normalizedDirectory) return [];
   const prefix = `${normalizedDirectory}/`;
-  const excluded = (opts?.excludePrefixes ?? []).map((entry) => normalizePortablePath(entry).replace(/\/+$/, "")).filter(Boolean);
+  const excluded = (opts?.excludePrefixes ?? [])
+    .map((entry) => normalizePortablePath(entry).replace(/\/+$/, ""))
+    .filter(Boolean);
   return Object.keys(files)
     .map(normalizePortablePath)
     .filter((filePath) => filePath.startsWith(prefix))
-    .filter((filePath) => !excluded.some((excludePrefix) => filePath.startsWith(`${excludePrefix}/`)))
+    .filter(
+      (filePath) =>
+        !excluded.some((excludePrefix) =>
+          filePath.startsWith(`${excludePrefix}/`),
+        ),
+    )
     .sort((left, right) => left.localeCompare(right));
 }
 
@@ -234,7 +301,9 @@ function collectEntityFiles(
   opts?: { excludePrefixes?: string[] },
 ): string[] {
   const normalizedPath = normalizePortablePath(entryPath);
-  const directory = normalizedPath.includes("/") ? normalizedPath.slice(0, normalizedPath.lastIndexOf("/")) : "";
+  const directory = normalizedPath.includes("/")
+    ? normalizedPath.slice(0, normalizedPath.lastIndexOf("/"))
+    : "";
   const selected = new Set<string>([normalizedPath]);
   if (directory) {
     for (const filePath of collectFilesUnderDirectory(files, directory, opts)) {
@@ -244,30 +313,43 @@ function collectEntityFiles(
   return Array.from(selected).sort((left, right) => left.localeCompare(right));
 }
 
-export function buildImportSelectionCatalog(preview: CompanyPortabilityPreviewResult): ImportSelectionCatalog {
+export function buildImportSelectionCatalog(
+  preview: CompanyPortabilityPreviewResult,
+): ImportSelectionCatalog {
   const selectedAgentSlugs = new Set(preview.selectedAgentSlugs);
   const companyFiles = new Set<string>();
-  const companyPath = preview.manifest.company?.path ? normalizePortablePath(preview.manifest.company.path) : null;
+  const companyPath = preview.manifest.company?.path
+    ? normalizePortablePath(preview.manifest.company.path)
+    : null;
   if (companyPath) {
     companyFiles.add(companyPath);
   }
-  const readmePath = Object.keys(preview.files).find((entry) => normalizePortablePath(entry) === "README.md");
+  const readmePath = Object.keys(preview.files).find(
+    (entry) => normalizePortablePath(entry) === "README.md",
+  );
   if (readmePath) {
     companyFiles.add(normalizePortablePath(readmePath));
   }
-  const logoPath = preview.manifest.company?.logoPath ? normalizePortablePath(preview.manifest.company.logoPath) : null;
+  const logoPath = preview.manifest.company?.logoPath
+    ? normalizePortablePath(preview.manifest.company.logoPath)
+    : null;
   if (logoPath && preview.files[logoPath] !== undefined) {
     companyFiles.add(logoPath);
   }
 
   return {
     company: {
-      includedByDefault: preview.include.company && preview.manifest.company !== null,
-      files: Array.from(companyFiles).sort((left, right) => left.localeCompare(right)),
+      includedByDefault:
+        preview.include.company && preview.manifest.company !== null,
+      files: Array.from(companyFiles).sort((left, right) =>
+        left.localeCompare(right),
+      ),
     },
     projects: preview.manifest.projects.map((project) => {
       const projectPath = normalizePortablePath(project.path);
-      const projectDir = projectPath.includes("/") ? projectPath.slice(0, projectPath.lastIndexOf("/")) : "";
+      const projectDir = projectPath.includes("/")
+        ? projectPath.slice(0, projectPath.lastIndexOf("/"))
+        : "";
       return {
         key: project.slug,
         label: project.name,
@@ -281,21 +363,33 @@ export function buildImportSelectionCatalog(preview: CompanyPortabilityPreviewRe
       key: issue.slug,
       label: issue.title,
       hint: issue.identifier ?? issue.slug,
-      files: collectEntityFiles(preview.files, normalizePortablePath(issue.path)),
+      files: collectEntityFiles(
+        preview.files,
+        normalizePortablePath(issue.path),
+      ),
     })),
     agents: preview.manifest.agents
-      .filter((agent) => selectedAgentSlugs.size === 0 || selectedAgentSlugs.has(agent.slug))
+      .filter(
+        (agent) =>
+          selectedAgentSlugs.size === 0 || selectedAgentSlugs.has(agent.slug),
+      )
       .map((agent) => ({
         key: agent.slug,
         label: agent.name,
         hint: agent.slug,
-        files: collectEntityFiles(preview.files, normalizePortablePath(agent.path)),
+        files: collectEntityFiles(
+          preview.files,
+          normalizePortablePath(agent.path),
+        ),
       })),
     skills: preview.manifest.skills.map((skill) => ({
       key: skill.slug,
       label: skill.name,
       hint: skill.slug,
-      files: collectEntityFiles(preview.files, normalizePortablePath(skill.path)),
+      files: collectEntityFiles(
+        preview.files,
+        normalizePortablePath(skill.path),
+      ),
     })),
     extensionPath: findPortableExtensionPath(preview.files),
   };
@@ -305,7 +399,9 @@ function toKeySet(items: Array<{ key: string }>): Set<string> {
   return new Set(items.map((item) => item.key));
 }
 
-export function buildDefaultImportSelectionState(catalog: ImportSelectionCatalog): ImportSelectionState {
+export function buildDefaultImportSelectionState(
+  catalog: ImportSelectionCatalog,
+): ImportSelectionState {
   return {
     company: catalog.company.includedByDefault,
     projects: toKeySet(catalog.projects),
@@ -315,15 +411,25 @@ export function buildDefaultImportSelectionState(catalog: ImportSelectionCatalog
   };
 }
 
-function countSelected(state: ImportSelectionState, group: ImportSelectableGroup): number {
+function countSelected(
+  state: ImportSelectionState,
+  group: ImportSelectableGroup,
+): number {
   return state[group].size;
 }
 
-function countTotal(catalog: ImportSelectionCatalog, group: ImportSelectableGroup): number {
+function countTotal(
+  catalog: ImportSelectionCatalog,
+  group: ImportSelectableGroup,
+): number {
   return catalog[group].length;
 }
 
-function summarizeGroupSelection(catalog: ImportSelectionCatalog, state: ImportSelectionState, group: ImportSelectableGroup): string {
+function summarizeGroupSelection(
+  catalog: ImportSelectionCatalog,
+  state: ImportSelectionState,
+  group: ImportSelectableGroup,
+): string {
   return `${countSelected(state, group)}/${countTotal(catalog, group)} selected`;
 }
 
@@ -370,12 +476,18 @@ export function buildSelectedFilesFromImportSelection(
 }
 
 export function buildDefaultImportAdapterOverrides(
-  preview: Pick<CompanyPortabilityPreviewResult, "manifest" | "selectedAgentSlugs">,
+  preview: Pick<
+    CompanyPortabilityPreviewResult,
+    "manifest" | "selectedAgentSlugs"
+  >,
 ): Record<string, { adapterType: string }> | undefined {
   const selectedAgentSlugs = new Set(preview.selectedAgentSlugs);
   const overrides = Object.fromEntries(
     preview.manifest.agents
-      .filter((agent) => selectedAgentSlugs.size === 0 || selectedAgentSlugs.has(agent.slug))
+      .filter(
+        (agent) =>
+          selectedAgentSlugs.size === 0 || selectedAgentSlugs.has(agent.slug),
+      )
       .filter((agent) => agent.adapterType === "process")
       .map((agent) => [
         agent.slug,
@@ -392,26 +504,34 @@ function buildDefaultImportAdapterMessages(
   overrides: Record<string, { adapterType: string }> | undefined,
 ): string[] {
   if (!overrides) return [];
-  const adapterTypes = Array.from(new Set(Object.values(overrides).map((override) => override.adapterType)))
-    .map((adapterType) => adapterType.replace(/_/g, "-"));
+  const adapterTypes = Array.from(
+    new Set(Object.values(overrides).map((override) => override.adapterType)),
+  ).map((adapterType) => adapterType.replace(/_/g, "-"));
   const agentCount = Object.keys(overrides).length;
   return [
     `Using ${adapterTypes.join(", ")} adapter${adapterTypes.length === 1 ? "" : "s"} for ${agentCount} imported ${pluralize(agentCount, "agent")} without an explicit adapter.`,
   ];
 }
 
-async function promptForImportSelection(preview: CompanyPortabilityPreviewResult): Promise<string[]> {
+async function promptForImportSelection(
+  preview: CompanyPortabilityPreviewResult,
+): Promise<string[]> {
   const catalog = buildImportSelectionCatalog(preview);
   const state = buildDefaultImportSelectionState(catalog);
 
   while (true) {
-    const choice = await p.select<ImportSelectableGroup | "company" | "confirm">({
+    const choice = await p.select<
+      ImportSelectableGroup | "company" | "confirm"
+    >({
       message: "Select what Taskcore should import",
       options: [
         {
           value: "company",
           label: state.company ? "Company: included" : "Company: skipped",
-          hint: catalog.company.files.length > 0 ? "toggle company metadata" : "no company metadata in package",
+          hint:
+            catalog.company.files.length > 0
+              ? "toggle company metadata"
+              : "no company metadata in package",
         },
         {
           value: "projects",
@@ -448,9 +568,15 @@ async function promptForImportSelection(preview: CompanyPortabilityPreviewResult
     }
 
     if (choice === "confirm") {
-      const selectedFiles = buildSelectedFilesFromImportSelection(catalog, state);
+      const selectedFiles = buildSelectedFilesFromImportSelection(
+        catalog,
+        state,
+      );
       if (selectedFiles.length === 0) {
-        p.note("Select at least one import target before confirming.", "Nothing selected");
+        p.note(
+          "Select at least one import target before confirming.",
+          "Nothing selected",
+        );
         continue;
       }
       return selectedFiles;
@@ -458,7 +584,10 @@ async function promptForImportSelection(preview: CompanyPortabilityPreviewResult
 
     if (choice === "company") {
       if (catalog.company.files.length === 0) {
-        p.note("This package does not include company metadata to toggle.", "No company metadata");
+        p.note(
+          "This package does not include company metadata to toggle.",
+          "No company metadata",
+        );
         continue;
       }
       state.company = !state.company;
@@ -468,7 +597,10 @@ async function promptForImportSelection(preview: CompanyPortabilityPreviewResult
     const group = choice;
     const groupItems = catalog[group];
     if (groupItems.length === 0) {
-      p.note(`This package does not include any ${getGroupLabel(group).toLowerCase()}.`, `No ${getGroupLabel(group)}`);
+      p.note(
+        `This package does not include any ${getGroupLabel(group).toLowerCase()}.`,
+        `No ${getGroupLabel(group)}`,
+      );
       continue;
     }
 
@@ -492,13 +624,17 @@ async function promptForImportSelection(preview: CompanyPortabilityPreviewResult
 }
 
 function summarizeInclude(include: CompanyPortabilityInclude): string {
-  const labels = IMPORT_INCLUDE_OPTIONS
-    .filter((option) => include[option.value])
-    .map((option) => option.label.toLowerCase());
+  const labels = IMPORT_INCLUDE_OPTIONS.filter(
+    (option) => include[option.value],
+  ).map((option) => option.label.toLowerCase());
   return labels.length > 0 ? labels.join(", ") : "nothing selected";
 }
 
-function formatSourceLabel(source: { type: "inline"; rootPath?: string | null } | { type: "github"; url: string }): string {
+function formatSourceLabel(
+  source:
+    | { type: "inline"; rootPath?: string | null }
+    | { type: "github"; url: string },
+): string {
   if (source.type === "github") {
     return `GitHub: ${source.url}`;
   }
@@ -506,18 +642,31 @@ function formatSourceLabel(source: { type: "inline"; rootPath?: string | null } 
 }
 
 function formatTargetLabel(
-  target: { mode: "existing_company"; companyId?: string | null } | { mode: "new_company"; newCompanyName?: string | null },
+  target:
+    | { mode: "existing_company"; companyId?: string | null }
+    | { mode: "new_company"; newCompanyName?: string | null },
   preview?: CompanyPortabilityPreviewResult,
 ): string {
   if (target.mode === "existing_company") {
     const targetName = preview?.targetCompanyName?.trim();
-    const targetId = preview?.targetCompanyId?.trim() || target.companyId?.trim() || "unknown-company";
+    const targetId =
+      preview?.targetCompanyId?.trim() ||
+      target.companyId?.trim() ||
+      "unknown-company";
     return targetName ? `${targetName} (${targetId})` : targetId;
   }
-  return target.newCompanyName?.trim() || preview?.manifest.company?.name || "new company";
+  return (
+    target.newCompanyName?.trim() ||
+    preview?.manifest.company?.name ||
+    "new company"
+  );
 }
 
-function pluralize(count: number, singular: string, plural = `${singular}s`): string {
+function pluralize(
+  count: number,
+  singular: string,
+  plural = `${singular}s`,
+): string {
   return count === 1 ? singular : plural;
 }
 
@@ -536,7 +685,9 @@ function summarizePlanCounts(
   return `${plans.length} ${pluralize(plans.length, noun)} total (${parts.join(", ")})`;
 }
 
-function summarizeImportAgentResults(agents: CompanyPortabilityImportResult["agents"]): string {
+function summarizeImportAgentResults(
+  agents: CompanyPortabilityImportResult["agents"],
+): string {
   if (agents.length === 0) return "0 agents changed";
   const created = agents.filter((agent) => agent.action === "created").length;
   const updated = agents.filter((agent) => agent.action === "updated").length;
@@ -548,11 +699,19 @@ function summarizeImportAgentResults(agents: CompanyPortabilityImportResult["age
   return `${agents.length} ${pluralize(agents.length, "agent")} total (${parts.join(", ")})`;
 }
 
-function summarizeImportProjectResults(projects: CompanyPortabilityImportResult["projects"]): string {
+function summarizeImportProjectResults(
+  projects: CompanyPortabilityImportResult["projects"],
+): string {
   if (projects.length === 0) return "0 projects changed";
-  const created = projects.filter((project) => project.action === "created").length;
-  const updated = projects.filter((project) => project.action === "updated").length;
-  const skipped = projects.filter((project) => project.action === "skipped").length;
+  const created = projects.filter(
+    (project) => project.action === "created",
+  ).length;
+  const updated = projects.filter(
+    (project) => project.action === "updated",
+  ).length;
+  const skipped = projects.filter(
+    (project) => project.action === "skipped",
+  ).length;
   const parts: string[] = [];
   if (created > 0) parts.push(`${created} created`);
   if (updated > 0) parts.push(`${updated} updated`);
@@ -588,7 +747,9 @@ function appendPreviewExamples(
   lines.push(pc.bold(title));
   const shown = entries.slice(0, IMPORT_PREVIEW_SAMPLE_LIMIT);
   for (const entry of shown) {
-    const reason = entry.reason?.trim() ? pc.dim(` (${entry.reason.trim()})`) : "";
+    const reason = entry.reason?.trim()
+      ? pc.dim(` (${entry.reason.trim()})`)
+      : "";
     lines.push(`- ${actionChip(entry.action)} ${entry.label}${reason}`);
   }
   if (entries.length > shown.length) {
@@ -596,7 +757,11 @@ function appendPreviewExamples(
   }
 }
 
-function appendMessageBlock(lines: string[], title: string, messages: string[]): void {
+function appendMessageBlock(
+  lines: string[],
+  title: string,
+  messages: string[],
+): void {
   if (messages.length === 0) return;
   lines.push("");
   lines.push(pc.bold(title));
@@ -628,18 +793,32 @@ export function renderCompanyImportPreview(
   ];
 
   if (preview.envInputs.length > 0) {
-    const requiredCount = preview.envInputs.filter((item) => item.requirement === "required").length;
-    lines.push(`- env inputs: ${preview.envInputs.length} (${requiredCount} required)`);
+    const requiredCount = preview.envInputs.filter(
+      (item) => item.requirement === "required",
+    ).length;
+    lines.push(
+      `- env inputs: ${preview.envInputs.length} (${requiredCount} required)`,
+    );
   }
 
   lines.push("");
   lines.push(pc.bold("Plan"));
-  lines.push(`- company: ${actionChip(preview.plan.companyAction === "none" ? "unchanged" : preview.plan.companyAction)}`);
-  lines.push(`- agents: ${summarizePlanCounts(preview.plan.agentPlans, "agent")}`);
-  lines.push(`- projects: ${summarizePlanCounts(preview.plan.projectPlans, "project")}`);
-  lines.push(`- tasks: ${summarizePlanCounts(preview.plan.issuePlans, "task")}`);
+  lines.push(
+    `- company: ${actionChip(preview.plan.companyAction === "none" ? "unchanged" : preview.plan.companyAction)}`,
+  );
+  lines.push(
+    `- agents: ${summarizePlanCounts(preview.plan.agentPlans, "agent")}`,
+  );
+  lines.push(
+    `- projects: ${summarizePlanCounts(preview.plan.projectPlans, "project")}`,
+  );
+  lines.push(
+    `- tasks: ${summarizePlanCounts(preview.plan.issuePlans, "task")}`,
+  );
   if (preview.include.skills) {
-    lines.push(`- skills: ${preview.manifest.skills.length} ${pluralize(preview.manifest.skills.length, "skill")} packaged`);
+    lines.push(
+      `- skills: ${preview.manifest.skills.length} ${pluralize(preview.manifest.skills.length, "skill")} packaged`,
+    );
   }
 
   appendPreviewExamples(
@@ -725,7 +904,11 @@ export function renderCompanyImportResult(
   return lines.join("\n");
 }
 
-function printCompanyImportView(title: string, body: string, opts?: { interactive?: boolean }): void {
+function printCompanyImportView(
+  title: string,
+  body: string,
+  opts?: { interactive?: boolean },
+): void {
   if (opts?.interactive) {
     p.note(body, title);
     return;
@@ -742,17 +925,24 @@ export function resolveCompanyImportApiPath(input: {
   if (input.targetMode === "existing_company") {
     const companyId = input.companyId?.trim();
     if (!companyId) {
-      throw new Error("Existing-company imports require a companyId to resolve the API route.");
+      throw new Error(
+        "Existing-company imports require a companyId to resolve the API route.",
+      );
     }
     return input.dryRun
       ? `/api/companies/${companyId}/imports/preview`
       : `/api/companies/${companyId}/imports/apply`;
   }
 
-  return input.dryRun ? "/api/companies/import/preview" : "/api/companies/import";
+  return input.dryRun
+    ? "/api/companies/import/preview"
+    : "/api/companies/import";
 }
 
-export function buildCompanyDashboardUrl(apiBase: string, issuePrefix: string): string {
+export function buildCompanyDashboardUrl(
+  apiBase: string,
+  issuePrefix: string,
+): string {
   const url = new URL(apiBase);
   const normalizedPrefix = issuePrefix.trim().replace(/^\/+|\/+$/g, "");
   url.pathname = `${url.pathname.replace(/\/+$/, "")}/${normalizedPrefix}/dashboard`;
@@ -818,7 +1008,9 @@ export function isGithubShorthand(input: string): boolean {
   return segments.length >= 2 && segments.every(isGithubSegment);
 }
 
-function normalizeGithubImportPath(input: string | null | undefined): string | null {
+function normalizeGithubImportPath(
+  input: string | null | undefined,
+): string | null {
   if (!input) return null;
   const trimmed = input.trim().replace(/^\/+|\/+$/g, "");
   return trimmed || null;
@@ -833,7 +1025,9 @@ function buildGithubImportUrl(input: {
   companyPath?: string | null;
 }): string {
   const host = input.hostname || "github.com";
-  const url = new URL(`https://${host}/${input.owner}/${input.repo.replace(/\.git$/i, "")}`);
+  const url = new URL(
+    `https://${host}/${input.owner}/${input.repo.replace(/\.git$/i, "")}`,
+  );
   const ref = input.ref?.trim();
   if (ref) {
     url.searchParams.set("ref", ref);
@@ -850,7 +1044,10 @@ function buildGithubImportUrl(input: {
   return url.toString();
 }
 
-export function normalizeGithubImportSource(input: string, refOverride?: string): string {
+export function normalizeGithubImportSource(
+  input: string,
+  refOverride?: string,
+): string {
   const trimmed = input.trim();
   const ref = refOverride?.trim();
 
@@ -865,7 +1062,9 @@ export function normalizeGithubImportSource(input: string, refOverride?: string)
   }
 
   if (!looksLikeRepoUrl(trimmed)) {
-    throw new Error("GitHub source must be a GitHub or GitHub Enterprise URL, or owner/repo[/path] shorthand.");
+    throw new Error(
+      "GitHub source must be a GitHub or GitHub Enterprise URL, or owner/repo[/path] shorthand.",
+    );
   }
   if (!ref) {
     return trimmed;
@@ -881,18 +1080,44 @@ export function normalizeGithubImportSource(input: string, refOverride?: string)
   const owner = parts[0]!;
   const repo = parts[1]!;
   const existingPath = normalizeGithubImportPath(url.searchParams.get("path"));
-  const existingCompanyPath = normalizeGithubImportPath(url.searchParams.get("companyPath"));
+  const existingCompanyPath = normalizeGithubImportPath(
+    url.searchParams.get("companyPath"),
+  );
   if (existingCompanyPath) {
-    return buildGithubImportUrl({ hostname, owner, repo, ref, companyPath: existingCompanyPath });
+    return buildGithubImportUrl({
+      hostname,
+      owner,
+      repo,
+      ref,
+      companyPath: existingCompanyPath,
+    });
   }
   if (existingPath) {
-    return buildGithubImportUrl({ hostname, owner, repo, ref, path: existingPath });
+    return buildGithubImportUrl({
+      hostname,
+      owner,
+      repo,
+      ref,
+      path: existingPath,
+    });
   }
   if (parts[2] === "tree") {
-    return buildGithubImportUrl({ hostname, owner, repo, ref, path: parts.slice(4).join("/") });
+    return buildGithubImportUrl({
+      hostname,
+      owner,
+      repo,
+      ref,
+      path: parts.slice(4).join("/"),
+    });
   }
   if (parts[2] === "blob") {
-    return buildGithubImportUrl({ hostname, owner, repo, ref, companyPath: parts.slice(4).join("/") });
+    return buildGithubImportUrl({
+      hostname,
+      owner,
+      repo,
+      ref,
+      companyPath: parts.slice(4).join("/"),
+    });
   }
   return buildGithubImportUrl({ hostname, owner, repo, ref });
 }
@@ -922,7 +1147,10 @@ async function collectPackageFiles(
     if (!entry.isFile()) continue;
     const relativePath = path.relative(root, absolutePath).replace(/\\/g, "/");
     if (!shouldIncludePortableFile(relativePath)) continue;
-    files[relativePath] = readPortableFileEntry(relativePath, await readFile(absolutePath));
+    files[relativePath] = readPortableFileEntry(
+      relativePath,
+      await readFile(absolutePath),
+    );
   }
 }
 
@@ -932,10 +1160,15 @@ export async function resolveInlineSourceFromPath(inputPath: string): Promise<{
 }> {
   const resolved = path.resolve(inputPath);
   const resolvedStat = await stat(resolved);
-  if (resolvedStat.isFile() && path.extname(resolved).toLowerCase() === ".zip") {
+  if (
+    resolvedStat.isFile() &&
+    path.extname(resolved).toLowerCase() === ".zip"
+  ) {
     const archive = await readZipArchive(await readFile(resolved));
     const filteredFiles = Object.fromEntries(
-      Object.entries(archive.files).filter(([relativePath]) => shouldIncludePortableFile(relativePath)),
+      Object.entries(archive.files).filter(([relativePath]) =>
+        shouldIncludePortableFile(relativePath),
+      ),
     );
     return {
       rootPath: archive.rootPath ?? path.basename(resolved, ".zip"),
@@ -943,7 +1176,9 @@ export async function resolveInlineSourceFromPath(inputPath: string): Promise<{
     };
   }
 
-  const rootDir = resolvedStat.isDirectory() ? resolved : path.dirname(resolved);
+  const rootDir = resolvedStat.isDirectory()
+    ? resolved
+    : path.dirname(resolved);
   const files: Record<string, CompanyPortabilityFileEntry> = {};
   await collectPackageFiles(rootDir, rootDir, files);
   return {
@@ -952,7 +1187,10 @@ export async function resolveInlineSourceFromPath(inputPath: string): Promise<{
   };
 }
 
-async function writeExportToFolder(outDir: string, exported: CompanyPortabilityExportResult): Promise<void> {
+async function writeExportToFolder(
+  outDir: string,
+  exported: CompanyPortabilityExportResult,
+): Promise<void> {
   const root = path.resolve(outDir);
   await mkdir(root, { recursive: true });
   for (const [relativePath, content] of Object.entries(exported.files)) {
@@ -973,14 +1211,18 @@ async function confirmOverwriteExportDirectory(outDir: string): Promise<void> {
   const stats = await stat(root).catch(() => null);
   if (!stats) return;
   if (!stats.isDirectory()) {
-    throw new Error(`Export output path ${root} exists and is not a directory.`);
+    throw new Error(
+      `Export output path ${root} exists and is not a directory.`,
+    );
   }
 
   const entries = await readdir(root);
   if (entries.length === 0) return;
 
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    throw new Error(`Export output directory ${root} already contains files. Re-run interactively or choose an empty directory.`);
+    throw new Error(
+      `Export output directory ${root} already contains files. Re-run interactively or choose an empty directory.`,
+    );
   }
 
   const confirmed = await p.confirm({
@@ -1008,7 +1250,9 @@ export function resolveCompanyForDeletion(
   }
 
   const idMatch = companies.find((company) => company.id === selector);
-  const prefixMatch = companies.find((company) => matchesPrefix(company, selector));
+  const prefixMatch = companies.find((company) =>
+    matchesPrefix(company, selector),
+  );
 
   if (by === "id") {
     if (!idMatch) {
@@ -1038,7 +1282,10 @@ export function resolveCompanyForDeletion(
   );
 }
 
-export function assertDeleteConfirmation(company: Company, opts: CompanyDeleteOptions): void {
+export function assertDeleteConfirmation(
+  company: Company,
+  opts: CompanyDeleteOptions,
+): void {
   if (!opts.yes) {
     throw new Error("Deletion requires --yes.");
   }
@@ -1051,7 +1298,8 @@ export function assertDeleteConfirmation(company: Company, opts: CompanyDeleteOp
   }
 
   const confirmsById = confirm === company.id;
-  const confirmsByPrefix = confirm.toUpperCase() === company.issuePrefix.toUpperCase();
+  const confirmsByPrefix =
+    confirm.toUpperCase() === company.issuePrefix.toUpperCase();
   if (!confirmsById && !confirmsByPrefix) {
     throw new Error(
       `Confirmation '${confirm}' does not match target company. Expected ID '${company.id}' or prefix '${company.issuePrefix}'.`,
@@ -1097,7 +1345,8 @@ export function registerCompanyCommands(program: Command): void {
             status: row.status,
             budgetMonthlyCents: row.budgetMonthlyCents,
             spentMonthlyCents: row.spentMonthlyCents,
-            requireBoardApprovalForNewAgents: row.requireBoardApprovalForNewAgents,
+            requireBoardApprovalForNewAgents:
+              row.requireBoardApprovalForNewAgents,
           }));
           for (const row of formatted) {
             console.log(formatInlineRecord(row));
@@ -1134,16 +1383,29 @@ export function registerCompanyCommands(program: Command): void {
       .option("--status <status>", "Filter by trace status")
       .option("--project-id <id>", "Filter by project ID")
       .option("--issue-id <id>", "Filter by issue ID")
-      .option("--from <iso8601>", "Only include traces created at or after this timestamp")
-      .option("--to <iso8601>", "Only include traces created at or before this timestamp")
-      .option("--shared-only", "Only include traces eligible for sharing/export")
-      .option("--include-payload", "Include stored payload snapshots in the response")
+      .option(
+        "--from <iso8601>",
+        "Only include traces created at or after this timestamp",
+      )
+      .option(
+        "--to <iso8601>",
+        "Only include traces created at or before this timestamp",
+      )
+      .option(
+        "--shared-only",
+        "Only include traces eligible for sharing/export",
+      )
+      .option(
+        "--include-payload",
+        "Include stored payload snapshots in the response",
+      )
       .action(async (opts: CompanyFeedbackOptions) => {
         try {
           const ctx = resolveCommandContext(opts, { requireCompany: true });
-          const traces = (await ctx.api.get<FeedbackTrace[]>(
-            `/api/companies/${ctx.companyId}/feedback-traces${buildFeedbackTraceQuery(opts)}`,
-          )) ?? [];
+          const traces =
+            (await ctx.api.get<FeedbackTrace[]>(
+              `/api/companies/${ctx.companyId}/feedback-traces${buildFeedbackTraceQuery(opts)}`,
+            )) ?? [];
           if (ctx.json) {
             printOutput(traces, { json: true });
             return;
@@ -1176,32 +1438,53 @@ export function registerCompanyCommands(program: Command): void {
       .option("--status <status>", "Filter by trace status")
       .option("--project-id <id>", "Filter by project ID")
       .option("--issue-id <id>", "Filter by issue ID")
-      .option("--from <iso8601>", "Only include traces created at or after this timestamp")
-      .option("--to <iso8601>", "Only include traces created at or before this timestamp")
-      .option("--shared-only", "Only include traces eligible for sharing/export")
-      .option("--include-payload", "Include stored payload snapshots in the export")
+      .option(
+        "--from <iso8601>",
+        "Only include traces created at or after this timestamp",
+      )
+      .option(
+        "--to <iso8601>",
+        "Only include traces created at or before this timestamp",
+      )
+      .option(
+        "--shared-only",
+        "Only include traces eligible for sharing/export",
+      )
+      .option(
+        "--include-payload",
+        "Include stored payload snapshots in the export",
+      )
       .option("--out <path>", "Write export to a file path instead of stdout")
       .option("--format <format>", "Export format: json or ndjson", "ndjson")
       .action(async (opts: CompanyFeedbackOptions) => {
         try {
           const ctx = resolveCommandContext(opts, { requireCompany: true });
-          const traces = (await ctx.api.get<FeedbackTrace[]>(
-            `/api/companies/${ctx.companyId}/feedback-traces${buildFeedbackTraceQuery(opts, opts.includePayload ?? true)}`,
-          )) ?? [];
+          const traces =
+            (await ctx.api.get<FeedbackTrace[]>(
+              `/api/companies/${ctx.companyId}/feedback-traces${buildFeedbackTraceQuery(opts, opts.includePayload ?? true)}`,
+            )) ?? [];
           const serialized = serializeFeedbackTraces(traces, opts.format);
           if (opts.out?.trim()) {
             await writeFile(opts.out, serialized, "utf8");
             if (ctx.json) {
               printOutput(
-                { out: opts.out, count: traces.length, format: normalizeFeedbackTraceExportFormat(opts.format) },
+                {
+                  out: opts.out,
+                  count: traces.length,
+                  format: normalizeFeedbackTraceExportFormat(opts.format),
+                },
                 { json: true },
               );
               return;
             }
-            console.log(`Wrote ${traces.length} feedback trace(s) to ${opts.out}`);
+            console.log(
+              `Wrote ${traces.length} feedback trace(s) to ${opts.out}`,
+            );
             return;
           }
-          process.stdout.write(`${serialized}${serialized.endsWith("\n") ? "" : "\n"}`);
+          process.stdout.write(
+            `${serialized}${serialized.endsWith("\n") ? "" : "\n"}`,
+          );
         } catch (err) {
           handleCommandError(err);
         }
@@ -1215,12 +1498,29 @@ export function registerCompanyCommands(program: Command): void {
       .description("Export a company into a portable markdown package")
       .argument("<companyId>", "Company ID")
       .requiredOption("--out <path>", "Output directory")
-      .option("--include <values>", "Comma-separated include set: company,agents,projects,issues,tasks,skills", "company,agents")
+      .option(
+        "--include <values>",
+        "Comma-separated include set: company,agents,projects,issues,tasks,skills",
+        "company,agents",
+      )
       .option("--skills <values>", "Comma-separated skill slugs/keys to export")
-      .option("--projects <values>", "Comma-separated project shortnames/ids to export")
-      .option("--issues <values>", "Comma-separated issue identifiers/ids to export")
-      .option("--project-issues <values>", "Comma-separated project shortnames/ids whose issues should be exported")
-      .option("--expand-referenced-skills", "Vendor skill contents instead of exporting upstream references", false)
+      .option(
+        "--projects <values>",
+        "Comma-separated project shortnames/ids to export",
+      )
+      .option(
+        "--issues <values>",
+        "Comma-separated issue identifiers/ids to export",
+      )
+      .option(
+        "--project-issues <values>",
+        "Comma-separated project shortnames/ids whose issues should be exported",
+      )
+      .option(
+        "--expand-referenced-skills",
+        "Vendor skill contents instead of exporting upstream references",
+        false,
+      )
       .action(async (companyId: string, opts: CompanyExportOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
@@ -1266,17 +1566,37 @@ export function registerCompanyCommands(program: Command): void {
   addCommonClientOptions(
     company
       .command("import")
-      .description("Import a portable markdown company package from local path, URL, or GitHub")
+      .description(
+        "Import a portable markdown company package from local path, URL, or GitHub",
+      )
       .argument("<fromPathOrUrl>", "Source path or URL")
-      .option("--include <values>", "Comma-separated include set: company,agents,projects,issues,tasks,skills")
+      .option(
+        "--include <values>",
+        "Comma-separated include set: company,agents,projects,issues,tasks,skills",
+      )
       .option("--target <mode>", "Target mode: new | existing")
       .option("-C, --company-id <id>", "Existing target company ID")
       .option("--new-company-name <name>", "Name override for --target new")
-      .option("--agents <list>", "Comma-separated agent slugs to import, or all", "all")
-      .option("--collision <mode>", "Collision strategy: rename | skip | replace", "rename")
-      .option("--ref <value>", "Git ref to use for GitHub imports (branch, tag, or commit)")
+      .option(
+        "--agents <list>",
+        "Comma-separated agent slugs to import, or all",
+        "all",
+      )
+      .option(
+        "--collision <mode>",
+        "Collision strategy: rename | skip | replace",
+        "rename",
+      )
+      .option(
+        "--ref <value>",
+        "Git ref to use for GitHub imports (branch, tag, or commit)",
+      )
       .option("--taskcore-url <url>", "Alias for --api-base on this command")
-      .option("--yes", "Accept default selection and skip the pre-import confirmation prompt", false)
+      .option(
+        "--yes",
+        "Accept default selection and skip the pre-import confirmation prompt",
+        false,
+      )
       .option("--dry-run", "Run preview only without applying", false)
       .action(async (fromPathOrUrl: string, opts: CompanyImportOptions) => {
         try {
@@ -1292,51 +1612,75 @@ export function registerCompanyCommands(program: Command): void {
 
           const include = resolveImportInclude(opts.include);
           const agents = parseAgents(opts.agents);
-          const collision = (opts.collision ?? "rename").toLowerCase() as CompanyCollisionMode;
+          const collision = (
+            opts.collision ?? "rename"
+          ).toLowerCase() as CompanyCollisionMode;
           if (!["rename", "skip", "replace"].includes(collision)) {
-            throw new Error("Invalid --collision value. Use: rename, skip, replace");
+            throw new Error(
+              "Invalid --collision value. Use: rename, skip, replace",
+            );
           }
 
-          const inferredTarget = opts.target ?? (opts.companyId || ctx.companyId ? "existing" : "new");
-          const target = inferredTarget.toLowerCase() as CompanyImportTargetMode;
+          const inferredTarget =
+            opts.target ??
+            (opts.companyId || ctx.companyId ? "existing" : "new");
+          const target =
+            inferredTarget.toLowerCase() as CompanyImportTargetMode;
           if (!["new", "existing"].includes(target)) {
             throw new Error("Invalid --target value. Use: new | existing");
           }
 
-          const existingTargetCompanyId = opts.companyId?.trim() || ctx.companyId;
+          const existingTargetCompanyId =
+            opts.companyId?.trim() || ctx.companyId;
           const targetPayload =
             target === "existing"
               ? {
-                mode: "existing_company" as const,
-                companyId: existingTargetCompanyId,
-              }
+                  mode: "existing_company" as const,
+                  companyId: existingTargetCompanyId,
+                }
               : {
-                mode: "new_company" as const,
-                newCompanyName: opts.newCompanyName?.trim() || null,
-              };
+                  mode: "new_company" as const,
+                  newCompanyName: opts.newCompanyName?.trim() || null,
+                };
 
-          if (targetPayload.mode === "existing_company" && !targetPayload.companyId) {
-            throw new Error("Target existing company requires --company-id (or context default companyId).");
+          if (
+            targetPayload.mode === "existing_company" &&
+            !targetPayload.companyId
+          ) {
+            throw new Error(
+              "Target existing company requires --company-id (or context default companyId).",
+            );
           }
 
           let sourcePayload:
-            | { type: "inline"; rootPath?: string | null; files: Record<string, CompanyPortabilityFileEntry> }
+            | {
+                type: "inline";
+                rootPath?: string | null;
+                files: Record<string, CompanyPortabilityFileEntry>;
+              }
             | { type: "github"; url: string };
 
-          const treatAsLocalPath = !isHttpUrl(from) && await pathExists(from);
-          const isGithubSource = looksLikeRepoUrl(from) || (isGithubShorthand(from) && !treatAsLocalPath);
+          const treatAsLocalPath = !isHttpUrl(from) && (await pathExists(from));
+          const isGithubSource =
+            looksLikeRepoUrl(from) ||
+            (isGithubShorthand(from) && !treatAsLocalPath);
 
           if (isHttpUrl(from) || isGithubSource) {
             if (!looksLikeRepoUrl(from) && !isGithubShorthand(from)) {
               throw new Error(
                 "Only GitHub URLs and local paths are supported for import. " +
-                "Generic HTTP URLs are not supported. Use a GitHub or GitHub Enterprise URL (https://github.com/... or https://ghe.example.com/...) or a local directory path.",
+                  "Generic HTTP URLs are not supported. Use a GitHub or GitHub Enterprise URL (https://github.com/... or https://ghe.example.com/...) or a local directory path.",
               );
             }
-            sourcePayload = { type: "github", url: normalizeGithubImportSource(from, opts.ref) };
+            sourcePayload = {
+              type: "github",
+              url: normalizeGithubImportSource(from, opts.ref),
+            };
           } else {
             if (opts.ref?.trim()) {
-              throw new Error("--ref is only supported for GitHub import sources.");
+              throw new Error(
+                "--ref is only supported for GitHub import sources.",
+              );
             }
             const inline = await resolveInlineSourceFromPath(from);
             sourcePayload = {
@@ -1351,18 +1695,25 @@ export function registerCompanyCommands(program: Command): void {
           const previewApiPath = resolveCompanyImportApiPath({
             dryRun: true,
             targetMode: targetPayload.mode,
-            companyId: targetPayload.mode === "existing_company" ? targetPayload.companyId : null,
+            companyId:
+              targetPayload.mode === "existing_company"
+                ? targetPayload.companyId
+                : null,
           });
 
           let selectedFiles: string[] | undefined;
           if (interactiveView && !opts.yes && !opts.include?.trim()) {
-            const initialPreview = await ctx.api.post<CompanyPortabilityPreviewResult>(previewApiPath, {
-              source: sourcePayload,
-              include,
-              target: targetPayload,
-              agents,
-              collisionStrategy: collision,
-            });
+            const initialPreview =
+              await ctx.api.post<CompanyPortabilityPreviewResult>(
+                previewApiPath,
+                {
+                  source: sourcePayload,
+                  include,
+                  target: targetPayload,
+                  agents,
+                  collisionStrategy: collision,
+                },
+              );
             if (!initialPreview) {
               throw new Error("Import preview returned no data.");
             }
@@ -1377,12 +1728,16 @@ export function registerCompanyCommands(program: Command): void {
             collisionStrategy: collision,
             selectedFiles,
           };
-          const preview = await ctx.api.post<CompanyPortabilityPreviewResult>(previewApiPath, previewPayload);
+          const preview = await ctx.api.post<CompanyPortabilityPreviewResult>(
+            previewApiPath,
+            previewPayload,
+          );
           if (!preview) {
             throw new Error("Import preview returned no data.");
           }
           const adapterOverrides = buildDefaultImportAdapterOverrides(preview);
-          const adapterMessages = buildDefaultImportAdapterMessages(adapterOverrides);
+          const adapterMessages =
+            buildDefaultImportAdapterMessages(adapterOverrides);
 
           if (opts.dryRun) {
             if (ctx.json) {
@@ -1432,28 +1787,44 @@ export function registerCompanyCommands(program: Command): void {
           const importApiPath = resolveCompanyImportApiPath({
             dryRun: false,
             targetMode: targetPayload.mode,
-            companyId: targetPayload.mode === "existing_company" ? targetPayload.companyId : null,
+            companyId:
+              targetPayload.mode === "existing_company"
+                ? targetPayload.companyId
+                : null,
           });
-          const imported = await ctx.api.post<CompanyPortabilityImportResult>(importApiPath, {
-            ...previewPayload,
-            adapterOverrides,
-          });
+          const imported = await ctx.api.post<CompanyPortabilityImportResult>(
+            importApiPath,
+            {
+              ...previewPayload,
+              adapterOverrides,
+            },
+          );
           if (!imported) {
             throw new Error("Import request returned no data.");
           }
           const tc = getTelemetryClient();
           if (tc) {
             const isPrivate = sourcePayload.type !== "github";
-            const sourceRef = sourcePayload.type === "github" ? sourcePayload.url : from;
-            trackCompanyImported(tc, { sourceType: sourcePayload.type, sourceRef, isPrivate });
+            const sourceRef =
+              sourcePayload.type === "github" ? sourcePayload.url : from;
+            trackCompanyImported(tc, {
+              sourceType: sourcePayload.type,
+              sourceRef,
+              isPrivate,
+            });
           }
           let companyUrl: string | undefined;
           if (!ctx.json) {
             try {
-              const importedCompany = await ctx.api.get<Company>(`/api/companies/${imported.company.id}`);
+              const importedCompany = await ctx.api.get<Company>(
+                `/api/companies/${imported.company.id}`,
+              );
               const issuePrefix = importedCompany?.issuePrefix?.trim();
               if (issuePrefix) {
-                companyUrl = buildCompanyDashboardUrl(ctx.api.apiBase, issuePrefix);
+                companyUrl = buildCompanyDashboardUrl(
+                  ctx.api.apiBase,
+                  issuePrefix,
+                );
               }
             } catch {
               companyUrl = undefined;
@@ -1480,7 +1851,9 @@ export function registerCompanyCommands(program: Command): void {
                 if (openUrl(companyUrl)) {
                   p.log.info(`Opened ${companyUrl}`);
                 } else {
-                  p.log.warn(`Could not open your browser automatically. Open this URL manually:\n${companyUrl}`);
+                  p.log.warn(
+                    `Could not open your browser automatically. Open this URL manually:\n${companyUrl}`,
+                  );
                 }
               }
             }
@@ -1496,21 +1869,25 @@ export function registerCompanyCommands(program: Command): void {
       .command("delete")
       .description("Delete a company by ID or shortname/prefix (destructive)")
       .argument("<selector>", "Company ID or issue prefix (for example PAP)")
+      .option("--by <mode>", "Selector mode: auto | id | prefix", "auto")
       .option(
-        "--by <mode>",
-        "Selector mode: auto | id | prefix",
-        "auto",
+        "--yes",
+        "Required safety flag to confirm destructive action",
+        false,
       )
-      .option("--yes", "Required safety flag to confirm destructive action", false)
       .option(
         "--confirm <value>",
         "Required safety value: target company ID or shortname/prefix",
       )
       .action(async (selector: string, opts: CompanyDeleteOptions) => {
         try {
-          const by = (opts.by ?? "auto").trim().toLowerCase() as CompanyDeleteSelectorMode;
+          const by = (opts.by ?? "auto")
+            .trim()
+            .toLowerCase() as CompanyDeleteSelectorMode;
           if (!["auto", "id", "prefix"].includes(by)) {
-            throw new Error(`Invalid --by mode '${opts.by}'. Expected one of: auto, id, prefix.`);
+            throw new Error(
+              `Invalid --by mode '${opts.by}'. Expected one of: auto, id, prefix.`,
+            );
           }
 
           const ctx = resolveCommandContext(opts);
@@ -1518,21 +1895,34 @@ export function registerCompanyCommands(program: Command): void {
           assertDeleteFlags(opts);
 
           let target: Company | null = null;
-          const shouldTryIdLookup = by === "id" || (by === "auto" && isUuidLike(normalizedSelector));
+          const shouldTryIdLookup =
+            by === "id" || (by === "auto" && isUuidLike(normalizedSelector));
           if (shouldTryIdLookup) {
-            const byId = await ctx.api.get<Company>(`/api/companies/${normalizedSelector}`, { ignoreNotFound: true });
+            const byId = await ctx.api.get<Company>(
+              `/api/companies/${normalizedSelector}`,
+              { ignoreNotFound: true },
+            );
             if (byId) {
               target = byId;
             } else if (by === "id") {
-              throw new Error(`No company found by ID '${normalizedSelector}'.`);
+              throw new Error(
+                `No company found by ID '${normalizedSelector}'.`,
+              );
             }
           }
 
           if (!target && ctx.companyId) {
-            const scoped = await ctx.api.get<Company>(`/api/companies/${ctx.companyId}`, { ignoreNotFound: true });
+            const scoped = await ctx.api.get<Company>(
+              `/api/companies/${ctx.companyId}`,
+              { ignoreNotFound: true },
+            );
             if (scoped) {
               try {
-                target = resolveCompanyForDeletion([scoped], normalizedSelector, by);
+                target = resolveCompanyForDeletion(
+                  [scoped],
+                  normalizedSelector,
+                  by,
+                );
               } catch {
                 // Fallback to board-wide lookup below.
               }
@@ -1541,10 +1931,19 @@ export function registerCompanyCommands(program: Command): void {
 
           if (!target) {
             try {
-              const companies = (await ctx.api.get<Company[]>("/api/companies")) ?? [];
-              target = resolveCompanyForDeletion(companies, normalizedSelector, by);
+              const companies =
+                (await ctx.api.get<Company[]>("/api/companies")) ?? [];
+              target = resolveCompanyForDeletion(
+                companies,
+                normalizedSelector,
+                by,
+              );
             } catch (error) {
-              if (error instanceof ApiRequestError && error.status === 403 && error.message.includes("Board access required")) {
+              if (
+                error instanceof ApiRequestError &&
+                error.status === 403 &&
+                error.message.includes("Board access required")
+              ) {
                 throw new Error(
                   "Board access is required to resolve companies across the instance. Use a company ID/prefix for your current company, or run with board authentication.",
                 );
@@ -1554,7 +1953,9 @@ export function registerCompanyCommands(program: Command): void {
           }
 
           if (!target) {
-            throw new Error(`No company found for selector '${normalizedSelector}'.`);
+            throw new Error(
+              `No company found for selector '${normalizedSelector}'.`,
+            );
           }
 
           assertDeleteConfirmation(target, opts);

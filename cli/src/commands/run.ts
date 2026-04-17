@@ -54,7 +54,9 @@ export async function runCommand(opts: RunOptions): Promise<void> {
   if (!configExists(configPath)) {
     if (!process.stdin.isTTY || !process.stdout.isTTY) {
       p.log.error("No config found and terminal is non-interactive.");
-      p.log.message(`Run ${pc.cyan("taskcore onboard")} once, then retry ${pc.cyan("taskcore run")}.`);
+      p.log.message(
+        `Run ${pc.cyan("taskcore onboard")} once, then retry ${pc.cyan("taskcore run")}.`,
+      );
       process.exit(1);
     }
 
@@ -102,9 +104,14 @@ function resolveBootstrapInviteBaseUrl(
     process.env.TASKCORE_AUTH_PUBLIC_BASE_URL ??
     process.env.BETTER_AUTH_URL ??
     process.env.BETTER_AUTH_BASE_URL ??
-    (config.auth.baseUrlMode === "explicit" ? config.auth.publicBaseUrl : undefined);
+    (config.auth.baseUrlMode === "explicit"
+      ? config.auth.publicBaseUrl
+      : undefined);
 
-  if (typeof explicitBaseUrl === "string" && explicitBaseUrl.trim().length > 0) {
+  if (
+    typeof explicitBaseUrl === "string" &&
+    explicitBaseUrl.trim().length > 0
+  ) {
     return explicitBaseUrl.trim().replace(/\/+$/, "");
   }
 
@@ -133,7 +140,9 @@ function isModuleNotFoundError(err: unknown): boolean {
 
 function getMissingModuleSpecifier(err: unknown): string | null {
   if (!(err instanceof Error)) return null;
-  const packageMatch = err.message.match(/Cannot find package '([^']+)' imported from/);
+  const packageMatch = err.message.match(
+    /Cannot find package '([^']+)' imported from/,
+  );
   if (packageMatch?.[1]) return packageMatch[1];
   const moduleMatch = err.message.match(/Cannot find module '([^']+)'/);
   if (moduleMatch?.[1]) return moduleMatch[1];
@@ -143,13 +152,19 @@ function getMissingModuleSpecifier(err: unknown): string | null {
 function maybeEnableUiDevMiddleware(entrypoint: string): void {
   if (process.env.TASKCORE_UI_DEV_MIDDLEWARE !== undefined) return;
   const normalized = entrypoint.replaceAll("\\", "/");
-  if (normalized.endsWith("/server/src/index.ts") || normalized.endsWith("@taskcore/server/src/index.ts")) {
+  if (
+    normalized.endsWith("/server/src/index.ts") ||
+    normalized.endsWith("@taskcore/server/src/index.ts")
+  ) {
     process.env.TASKCORE_UI_DEV_MIDDLEWARE = "true";
   }
 }
 
 function ensureDevWorkspaceBuildDeps(projectRoot: string): void {
-  const buildScript = path.resolve(projectRoot, "scripts/ensure-plugin-build-deps.mjs");
+  const buildScript = path.resolve(
+    projectRoot,
+    "scripts/ensure-plugin-build-deps.mjs",
+  );
   if (!fs.existsSync(buildScript)) return;
 
   const result = spawnSync(process.execPath, [buildScript], {
@@ -173,7 +188,10 @@ function ensureDevWorkspaceBuildDeps(projectRoot: string): void {
 
 async function importServerEntry(): Promise<StartedServer> {
   // Dev mode: try local workspace path (monorepo with tsx)
-  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+  const projectRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../..",
+  );
   const devEntry = path.resolve(projectRoot, "server/src/index.ts");
   if (fs.existsSync(devEntry)) {
     ensureDevWorkspaceBuildDeps(projectRoot);
@@ -188,29 +206,40 @@ async function importServerEntry(): Promise<StartedServer> {
     return await startServerFromModule(mod, "@taskcore/server");
   } catch (err) {
     const missingSpecifier = getMissingModuleSpecifier(err);
-    const missingServerEntrypoint = !missingSpecifier || missingSpecifier === "@taskcore/server";
+    const missingServerEntrypoint =
+      !missingSpecifier || missingSpecifier === "@taskcore/server";
     if (isModuleNotFoundError(err) && missingServerEntrypoint) {
       throw new Error(
         `Could not locate a Taskcore server entrypoint.\n` +
-        `Tried: ${devEntry}, @taskcore/server\n` +
-        `${formatError(err)}`,
+          `Tried: ${devEntry}, @taskcore/server\n` +
+          `${formatError(err)}`,
       );
     }
     throw new Error(
-      `Taskcore server failed to start.\n` +
-      `${formatError(err)}`,
+      `Taskcore server failed to start.\n` + `${formatError(err)}`,
     );
   }
 }
 
-function shouldGenerateBootstrapInviteAfterStart(config: TaskcoreConfig): boolean {
-  return config.server.deploymentMode === "authenticated" && config.database.mode === "embedded-postgres";
+function shouldGenerateBootstrapInviteAfterStart(
+  config: TaskcoreConfig,
+): boolean {
+  return (
+    config.server.deploymentMode === "authenticated" &&
+    config.database.mode === "embedded-postgres"
+  );
 }
 
-async function startServerFromModule(mod: unknown, label: string): Promise<StartedServer> {
-  const startServer = (mod as { startServer?: () => Promise<StartedServer> }).startServer;
+async function startServerFromModule(
+  mod: unknown,
+  label: string,
+): Promise<StartedServer> {
+  const startServer = (mod as { startServer?: () => Promise<StartedServer> })
+    .startServer;
   if (typeof startServer !== "function") {
-    throw new Error(`Taskcore server entrypoint did not export startServer(): ${label}`);
+    throw new Error(
+      `Taskcore server entrypoint did not export startServer(): ${label}`,
+    );
   }
   return await startServer();
 }

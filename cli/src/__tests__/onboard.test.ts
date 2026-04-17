@@ -69,13 +69,17 @@ function createExistingConfigFixture() {
   };
 
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
-  fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+  fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, {
+    mode: 0o600,
+  });
 
   return { configPath, configText: fs.readFileSync(configPath, "utf8") };
 }
 
 function createFreshConfigPath() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "taskcore-onboard-fresh-"));
+  const root = fs.mkdtempSync(
+    path.join(os.tmpdir(), "taskcore-onboard-fresh-"),
+  );
   return path.join(root, ".taskcore", "config.json");
 }
 
@@ -96,19 +100,31 @@ describe("onboard", () => {
 
     await onboard({ config: fixture.configPath });
 
-    expect(fs.readFileSync(fixture.configPath, "utf8")).toBe(fixture.configText);
+    expect(fs.readFileSync(fixture.configPath, "utf8")).toBe(
+      fixture.configText,
+    );
     expect(fs.existsSync(`${fixture.configPath}.backup`)).toBe(false);
-    expect(fs.existsSync(path.join(path.dirname(fixture.configPath), ".env"))).toBe(true);
+    expect(
+      fs.existsSync(path.join(path.dirname(fixture.configPath), ".env")),
+    ).toBe(true);
   });
 
   it("preserves an existing config when rerun with --yes", async () => {
     const fixture = createExistingConfigFixture();
 
-    await onboard({ config: fixture.configPath, yes: true, invokedByRun: true });
+    await onboard({
+      config: fixture.configPath,
+      yes: true,
+      invokedByRun: true,
+    });
 
-    expect(fs.readFileSync(fixture.configPath, "utf8")).toBe(fixture.configText);
+    expect(fs.readFileSync(fixture.configPath, "utf8")).toBe(
+      fixture.configText,
+    );
     expect(fs.existsSync(`${fixture.configPath}.backup`)).toBe(false);
-    expect(fs.existsSync(path.join(path.dirname(fixture.configPath), ".env"))).toBe(true);
+    expect(
+      fs.existsSync(path.join(path.dirname(fixture.configPath), ".env")),
+    ).toBe(true);
   });
 
   it("keeps --yes onboarding on local trusted loopback defaults", async () => {
@@ -118,7 +134,9 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as TaskcoreConfig;
+    const raw = JSON.parse(
+      fs.readFileSync(configPath, "utf8"),
+    ) as TaskcoreConfig;
     expect(raw.server.deploymentMode).toBe("local_trusted");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");
@@ -129,9 +147,16 @@ describe("onboard", () => {
     const configPath = createFreshConfigPath();
     process.env.TASKCORE_TAILNET_BIND_HOST = "100.64.0.8";
 
-    await onboard({ config: configPath, yes: true, invokedByRun: true, bind: "tailnet" });
+    await onboard({
+      config: configPath,
+      yes: true,
+      invokedByRun: true,
+      bind: "tailnet",
+    });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as TaskcoreConfig;
+    const raw = JSON.parse(
+      fs.readFileSync(configPath, "utf8"),
+    ) as TaskcoreConfig;
     expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("tailnet");
@@ -142,9 +167,16 @@ describe("onboard", () => {
     const configPath = createFreshConfigPath();
     delete process.env.TASKCORE_TAILNET_BIND_HOST;
 
-    await onboard({ config: configPath, yes: true, invokedByRun: true, bind: "tailnet" });
+    await onboard({
+      config: configPath,
+      yes: true,
+      invokedByRun: true,
+      bind: "tailnet",
+    });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as TaskcoreConfig;
+    const raw = JSON.parse(
+      fs.readFileSync(configPath, "utf8"),
+    ) as TaskcoreConfig;
     expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("tailnet");
@@ -157,7 +189,9 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as TaskcoreConfig;
+    const raw = JSON.parse(
+      fs.readFileSync(configPath, "utf8"),
+    ) as TaskcoreConfig;
     expect(raw.server.deploymentMode).toBe("local_trusted");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");

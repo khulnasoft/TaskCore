@@ -53,7 +53,9 @@ function defaultBoardAuthStore(): BoardAuthStore {
 }
 
 function toStringOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 function normalizeApiBase(apiBase: string): string {
@@ -62,7 +64,8 @@ function normalizeApiBase(apiBase: string): string {
 
 export function resolveBoardAuthStorePath(overridePath?: string): string {
   if (overridePath?.trim()) return path.resolve(overridePath.trim());
-  if (process.env.TASKCORE_AUTH_STORE?.trim()) return path.resolve(process.env.TASKCORE_AUTH_STORE.trim());
+  if (process.env.TASKCORE_AUTH_STORE?.trim())
+    return path.resolve(process.env.TASKCORE_AUTH_STORE.trim());
   return resolveDefaultCliAuthPath();
 }
 
@@ -70,8 +73,13 @@ export function readBoardAuthStore(storePath?: string): BoardAuthStore {
   const filePath = resolveBoardAuthStorePath(storePath);
   if (!fs.existsSync(filePath)) return defaultBoardAuthStore();
 
-  const raw = JSON.parse(fs.readFileSync(filePath, "utf8")) as Partial<BoardAuthStore> | null;
-  const credentials = raw?.credentials && typeof raw.credentials === "object" ? raw.credentials : {};
+  const raw = JSON.parse(
+    fs.readFileSync(filePath, "utf8"),
+  ) as Partial<BoardAuthStore> | null;
+  const credentials =
+    raw?.credentials && typeof raw.credentials === "object"
+      ? raw.credentials
+      : {};
   const normalized: Record<string, BoardAuthCredential> = {};
 
   for (const [key, value] of Object.entries(credentials)) {
@@ -97,13 +105,21 @@ export function readBoardAuthStore(storePath?: string): BoardAuthStore {
   };
 }
 
-export function writeBoardAuthStore(store: BoardAuthStore, storePath?: string): void {
+export function writeBoardAuthStore(
+  store: BoardAuthStore,
+  storePath?: string,
+): void {
   const filePath = resolveBoardAuthStorePath(storePath);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(store, null, 2)}\n`, { mode: 0o600 });
+  fs.writeFileSync(filePath, `${JSON.stringify(store, null, 2)}\n`, {
+    mode: 0o600,
+  });
 }
 
-export function getStoredBoardCredential(apiBase: string, storePath?: string): BoardAuthCredential | null {
+export function getStoredBoardCredential(
+  apiBase: string,
+  storePath?: string,
+): BoardAuthCredential | null {
   const store = readBoardAuthStore(storePath);
   return store.credentials[normalizeApiBase(apiBase)] ?? null;
 }
@@ -130,7 +146,10 @@ export function setStoredBoardCredential(input: {
   return credential;
 }
 
-export function removeStoredBoardCredential(apiBase: string, storePath?: string): boolean {
+export function removeStoredBoardCredential(
+  apiBase: string,
+  storePath?: string,
+): boolean {
   const normalizedApiBase = normalizeApiBase(apiBase);
   const store = readBoardAuthStore(storePath);
   if (!store.credentials[normalizedApiBase]) return false;
@@ -160,7 +179,9 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     const message =
-      body && typeof body === "object" && typeof (body as { error?: unknown }).error === "string"
+      body &&
+      typeof body === "object" &&
+      typeof (body as { error?: unknown }).error === "string"
         ? (body as { error: string }).error
         : `Request failed: ${response.status}`;
     throw new Error(message);
@@ -178,7 +199,10 @@ export function openUrl(url: string): boolean {
       return true;
     }
     if (platform === "win32") {
-      const child = spawn("cmd", ["/c", "start", "", url], { detached: true, stdio: "ignore" });
+      const child = spawn("cmd", ["/c", "start", "", url], {
+        detached: true,
+        stdio: "ignore",
+      });
       child.unref();
       return true;
     }
@@ -213,10 +237,13 @@ export async function loginBoardCli(params: {
     }),
   });
 
-  const approvalUrl = challenge.approvalUrl ?? `${apiBase}${challenge.approvalPath}`;
+  const approvalUrl =
+    challenge.approvalUrl ?? `${apiBase}${challenge.approvalPath}`;
   if (params.print !== false) {
     console.error(pc.bold("Board authentication required"));
-    console.error(`Open this URL in your browser to approve CLI access:\n${approvalUrl}`);
+    console.error(
+      `Open this URL in your browser to approve CLI access:\n${approvalUrl}`,
+    );
   }
 
   const opened = openUrl(approvalUrl);
@@ -233,14 +260,14 @@ export async function loginBoardCli(params: {
     );
 
     if (status.status === "approved") {
-      const me = await requestJson<{ userId: string; user?: { id: string } | null }>(
-        `${apiBase}/api/cli-auth/me`,
-        {
-          headers: {
-            authorization: `Bearer ${challenge.boardApiToken}`,
-          },
+      const me = await requestJson<{
+        userId: string;
+        user?: { id: string } | null;
+      }>(`${apiBase}/api/cli-auth/me`, {
+        headers: {
+          authorization: `Bearer ${challenge.boardApiToken}`,
         },
-      );
+      });
       setStoredBoardCredential({
         apiBase,
         token: challenge.boardApiToken,
@@ -272,11 +299,14 @@ export async function revokeStoredBoardCredential(params: {
   token: string;
 }): Promise<void> {
   const apiBase = normalizeApiBase(params.apiBase);
-  await requestJson<{ revoked: boolean }>(`${apiBase}/api/cli-auth/revoke-current`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${params.token}`,
+  await requestJson<{ revoked: boolean }>(
+    `${apiBase}/api/cli-auth/revoke-current`,
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${params.token}`,
+      },
+      body: JSON.stringify({}),
     },
-    body: JSON.stringify({}),
-  });
+  );
 }

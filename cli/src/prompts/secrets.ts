@@ -1,7 +1,10 @@
 import * as p from "@clack/prompts";
 import type { SecretProvider } from "@taskcore/shared";
 import type { SecretsConfig } from "../config/schema.js";
-import { resolveDefaultSecretsKeyFilePath, resolveTaskcoreInstanceId } from "../config/home.js";
+import {
+  resolveDefaultSecretsKeyFilePath,
+  resolveTaskcoreInstanceId,
+} from "../config/home.js";
 
 function defaultKeyFilePath(): string {
   return resolveDefaultSecretsKeyFilePath(resolveTaskcoreInstanceId());
@@ -18,7 +21,9 @@ export function defaultSecretsConfig(): SecretsConfig {
   };
 }
 
-export async function promptSecrets(current?: SecretsConfig): Promise<SecretsConfig> {
+export async function promptSecrets(
+  current?: SecretsConfig,
+): Promise<SecretsConfig> {
   const base = current ?? defaultSecretsConfig();
 
   const provider = await p.select({
@@ -71,7 +76,8 @@ export async function promptSecrets(current?: SecretsConfig): Promise<SecretsCon
       defaultValue: keyFilePath,
       placeholder: fallbackDefault,
       validate: (value) => {
-        if (!value || value.trim().length === 0) return "Key file path is required";
+        if (!value || value.trim().length === 0)
+          return "Key file path is required";
       },
     });
 

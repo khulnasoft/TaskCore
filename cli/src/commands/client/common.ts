@@ -1,9 +1,16 @@
 import pc from "picocolors";
 import type { Command } from "commander";
-import { getStoredBoardCredential, loginBoardCli } from "../../client/board-auth.js";
+import {
+  getStoredBoardCredential,
+  loginBoardCli,
+} from "../../client/board-auth.js";
 import { buildCliCommandLabel } from "../../client/command-label.js";
 import { readConfig } from "../../config/store.js";
-import { readContext, resolveProfile, type ClientContextProfile } from "../../client/context.js";
+import {
+  readContext,
+  resolveProfile,
+  type ClientContextProfile,
+} from "../../client/context.js";
 import { ApiRequestError, TaskcoreApiClient } from "../../client/http.js";
 
 export interface BaseClientOptions {
@@ -25,10 +32,16 @@ export interface ResolvedClientContext {
   json: boolean;
 }
 
-export function addCommonClientOptions(command: Command, opts?: { includeCompany?: boolean }): Command {
+export function addCommonClientOptions(
+  command: Command,
+  opts?: { includeCompany?: boolean },
+): Command {
   command
     .option("-c, --config <path>", "Path to Taskcore config file")
-    .option("-d, --data-dir <path>", "Taskcore data directory root (isolates state from ~/.taskcore)")
+    .option(
+      "-d, --data-dir <path>",
+      "Taskcore data directory root (isolates state from ~/.taskcore)",
+    )
     .option("--context <path>", "Path to CLI context file")
     .option("--profile <name>", "CLI context profile name")
     .option("--api-base <url>", "Base URL for the Taskcore API")
@@ -36,7 +49,10 @@ export function addCommonClientOptions(command: Command, opts?: { includeCompany
     .option("--json", "Output raw JSON");
 
   if (opts?.includeCompany) {
-    command.option("-C, --company-id <id>", "Company ID (overrides context default)");
+    command.option(
+      "-C, --company-id <id>",
+      "Company ID (overrides context default)",
+    );
   }
 
   return command;
@@ -47,7 +63,10 @@ export function resolveCommandContext(
   opts?: { requireCompany?: boolean },
 ): ResolvedClientContext {
   const context = readContext(options.context);
-  const { name: profileName, profile } = resolveProfile(context, options.profile);
+  const { name: profileName, profile } = resolveProfile(
+    context,
+    options.profile,
+  );
 
   const apiBase =
     options.apiBase?.trim() ||
@@ -59,7 +78,9 @@ export function resolveCommandContext(
     options.apiKey?.trim() ||
     process.env.TASKCORE_API_KEY?.trim() ||
     readKeyFromProfileEnv(profile);
-  const storedBoardCredential = explicitApiKey ? null : getStoredBoardCredential(apiBase);
+  const storedBoardCredential = explicitApiKey
+    ? null
+    : getStoredBoardCredential(apiBase);
   const apiKey = explicitApiKey || storedBoardCredential?.token;
 
   const companyId =
@@ -76,23 +97,26 @@ export function resolveCommandContext(
   const api = new TaskcoreApiClient({
     apiBase,
     apiKey,
-    recoverAuth: explicitApiKey || !canAttemptInteractiveBoardAuth()
-      ? undefined
-      : async ({ error }) => {
-        const requestedAccess = error.message.includes("Instance admin required")
-          ? "instance_admin_required"
-          : "board";
-        if (!shouldRecoverBoardAuth(error)) {
-          return null;
-        }
-        const login = await loginBoardCli({
-          apiBase,
-          requestedAccess,
-          requestedCompanyId: companyId ?? null,
-          command: buildCliCommandLabel(),
-        });
-        return login.token;
-      },
+    recoverAuth:
+      explicitApiKey || !canAttemptInteractiveBoardAuth()
+        ? undefined
+        : async ({ error }) => {
+            const requestedAccess = error.message.includes(
+              "Instance admin required",
+            )
+              ? "instance_admin_required"
+              : "board";
+            if (!shouldRecoverBoardAuth(error)) {
+              return null;
+            }
+            const login = await loginBoardCli({
+              apiBase,
+              requestedAccess,
+              requestedCompanyId: companyId ?? null,
+              command: buildCliCommandLabel(),
+            });
+            return login.token;
+          },
   });
   return {
     api,
@@ -106,14 +130,20 @@ export function resolveCommandContext(
 function shouldRecoverBoardAuth(error: ApiRequestError): boolean {
   if (error.status === 401) return true;
   if (error.status !== 403) return false;
-  return error.message.includes("Board access required") || error.message.includes("Instance admin required");
+  return (
+    error.message.includes("Board access required") ||
+    error.message.includes("Instance admin required")
+  );
 }
 
 function canAttemptInteractiveBoardAuth(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
 }
 
-export function printOutput(data: unknown, opts: { json?: boolean; label?: string } = {}): void {
+export function printOutput(
+  data: unknown,
+  opts: { json?: boolean; label?: string } = {},
+): void {
   if (opts.json) {
     console.log(JSON.stringify(data, null, 2));
     return;
@@ -152,7 +182,15 @@ export function printOutput(data: unknown, opts: { json?: boolean; label?: strin
 }
 
 export function formatInlineRecord(record: Record<string, unknown>): string {
-  const keyOrder = ["identifier", "id", "name", "status", "priority", "title", "action"];
+  const keyOrder = [
+    "identifier",
+    "id",
+    "name",
+    "status",
+    "priority",
+    "title",
+    "action",
+  ];
   const seen = new Set<string>();
   const parts: string[] = [];
 
@@ -203,15 +241,22 @@ function inferApiBaseFromConfig(configPath?: string): string {
   return `http://${envHost}:${port}`;
 }
 
-function readKeyFromProfileEnv(profile: ClientContextProfile): string | undefined {
+function readKeyFromProfileEnv(
+  profile: ClientContextProfile,
+): string | undefined {
   if (!profile.apiKeyEnvVarName) return undefined;
   return process.env[profile.apiKeyEnvVarName]?.trim() || undefined;
 }
 
 export function handleCommandError(error: unknown): never {
   if (error instanceof ApiRequestError) {
-    const detailSuffix = error.details !== undefined ? ` details=${JSON.stringify(error.details)}` : "";
-    console.error(pc.red(`API error ${error.status}: ${error.message}${detailSuffix}`));
+    const detailSuffix =
+      error.details !== undefined
+        ? ` details=${JSON.stringify(error.details)}`
+        : "";
+    console.error(
+      pc.red(`API error ${error.status}: ${error.message}${detailSuffix}`),
+    );
     process.exit(1);
   }
 

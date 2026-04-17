@@ -27,7 +27,10 @@ function decodeMasterKey(raw: string): Buffer | null {
 }
 
 function withStrictModeNote(
-  base: Pick<CheckResult, "name" | "status" | "message" | "canRepair" | "repair" | "repairHint">,
+  base: Pick<
+    CheckResult,
+    "name" | "status" | "message" | "canRepair" | "repair" | "repairHint"
+  >,
   config: TaskcoreConfig,
 ): CheckResult {
   const strictModeDisabledInDeployedSetup =
@@ -45,7 +48,10 @@ function withStrictModeNote(
   };
 }
 
-export function secretsCheck(config: TaskcoreConfig, configPath?: string): CheckResult {
+export function secretsCheck(
+  config: TaskcoreConfig,
+  configPath?: string,
+): CheckResult {
   const provider = config.secrets.provider;
   if (provider !== "local_encrypted") {
     return {
@@ -53,7 +59,8 @@ export function secretsCheck(config: TaskcoreConfig, configPath?: string): Check
       status: "fail",
       message: `${provider} is configured, but this build only supports local_encrypted`,
       canRepair: false,
-      repairHint: "Run `taskcore configure --section secrets` and set provider to local_encrypted",
+      repairHint:
+        "Run `taskcore configure --section secrets` and set provider to local_encrypted",
     };
   }
 
@@ -66,7 +73,8 @@ export function secretsCheck(config: TaskcoreConfig, configPath?: string): Check
         message:
           "TASKCORE_SECRETS_MASTER_KEY is invalid (expected 32-byte base64, 64-char hex, or raw 32-char string)",
         canRepair: false,
-        repairHint: "Set TASKCORE_SECRETS_MASTER_KEY to a valid key or unset it to use a key file",
+        repairHint:
+          "Set TASKCORE_SECRETS_MASTER_KEY to a valid key or unset it to use a key file",
       };
     }
 
@@ -74,7 +82,8 @@ export function secretsCheck(config: TaskcoreConfig, configPath?: string): Check
       {
         name: "Secrets adapter",
         status: "pass",
-        message: "Local encrypted provider configured via TASKCORE_SECRETS_MASTER_KEY",
+        message:
+          "Local encrypted provider configured via TASKCORE_SECRETS_MASTER_KEY",
       },
       config,
     );
@@ -106,7 +115,8 @@ export function secretsCheck(config: TaskcoreConfig, configPath?: string): Check
             // best effort
           }
         },
-        repairHint: "Run with --repair to create a local encrypted secrets key file",
+        repairHint:
+          "Run with --repair to create a local encrypted secrets key file",
       },
       config,
     );
@@ -131,7 +141,8 @@ export function secretsCheck(config: TaskcoreConfig, configPath?: string): Check
       status: "fail",
       message: `Invalid key material in ${keyFilePath}`,
       canRepair: false,
-      repairHint: "Replace with valid key material or delete it and run doctor --repair",
+      repairHint:
+        "Replace with valid key material or delete it and run doctor --repair",
     };
   }
 

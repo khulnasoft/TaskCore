@@ -24,20 +24,20 @@ Taskcore now treats **bind** as a separate concern from auth:
 
 ## 2. Canonical Model
 
-| Runtime Mode | Exposure | Human auth | Primary use |
-|---|---|---|---|
-| `local_trusted` | n/a | No login required | Single-operator local machine workflow |
-| `authenticated` | `private` | Login required | Private-network access (for example Tailscale/VPN/LAN) |
-| `authenticated` | `public` | Login required | Internet-facing/cloud deployment |
+| Runtime Mode    | Exposure  | Human auth        | Primary use                                            |
+| --------------- | --------- | ----------------- | ------------------------------------------------------ |
+| `local_trusted` | n/a       | No login required | Single-operator local machine workflow                 |
+| `authenticated` | `private` | Login required    | Private-network access (for example Tailscale/VPN/LAN) |
+| `authenticated` | `public`  | Login required    | Internet-facing/cloud deployment                       |
 
 ## Reachability Model
 
-| Bind | Meaning | Typical use |
-|---|---|---|
-| `loopback` | Listen on localhost only | default local usage, reverse-proxy deployments |
-| `lan` | Listen on all interfaces (`0.0.0.0`) | LAN/VPN/private-network access |
-| `tailnet` | Listen on a detected Tailscale IP | Tailscale-only access |
-| `custom` | Listen on an explicit host/IP | advanced interface-specific setups |
+| Bind       | Meaning                              | Typical use                                    |
+| ---------- | ------------------------------------ | ---------------------------------------------- |
+| `loopback` | Listen on localhost only             | default local usage, reverse-proxy deployments |
+| `lan`      | Listen on all interfaces (`0.0.0.0`) | LAN/VPN/private-network access                 |
+| `tailnet`  | Listen on a detected Tailscale IP    | Tailscale-only access                          |
+| `custom`   | Listen on an explicit host/IP        | advanced interface-specific setups             |
 
 ## 3. Security Policy
 
@@ -73,10 +73,12 @@ Server prompt behavior:
 
 1. quickstart `--yes` defaults to `server.bind=loopback` and therefore `local_trusted/private`
 2. advanced server setup asks reachability first:
+
 - `Trusted local` → `bind=loopback`, `local_trusted/private`
 - `Private network` → `bind=lan`, `authenticated/private`
 - `Tailnet` → `bind=tailnet`, `authenticated/private`
 - `Custom` → manual mode/exposure/host entry
+
 3. raw host entry is only required for the `Custom` path
 4. explicit public URL is only required for `authenticated + public`
 

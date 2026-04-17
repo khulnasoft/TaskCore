@@ -90,13 +90,13 @@ pnpm dev
 
 ## Data Locations
 
-| Data | Path |
-|------|------|
-| Config | `~/.taskcore/instances/default/config.json` |
-| Database | `~/.taskcore/instances/default/db` |
-| Storage | `~/.taskcore/instances/default/data/storage` |
+| Data        | Path                                               |
+| ----------- | -------------------------------------------------- |
+| Config      | `~/.taskcore/instances/default/config.json`        |
+| Database    | `~/.taskcore/instances/default/db`                 |
+| Storage     | `~/.taskcore/instances/default/data/storage`       |
 | Secrets key | `~/.taskcore/instances/default/secrets/master.key` |
-| Logs | `~/.taskcore/instances/default/logs` |
+| Logs        | `~/.taskcore/instances/default/logs`               |
 
 Override with environment variables:
 

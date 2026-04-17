@@ -2,7 +2,11 @@ import * as p from "@clack/prompts";
 import { isLoopbackHost, type BindMode } from "@taskcore/shared";
 import type { AuthConfig, ServerConfig } from "../config/schema.js";
 import { parseHostnameCsv } from "../config/hostnames.js";
-import { buildCustomServerConfig, buildPresetServerConfig, inferConfiguredBind } from "../config/server-bind.js";
+import {
+  buildCustomServerConfig,
+  buildPresetServerConfig,
+  inferConfiguredBind,
+} from "../config/server-bind.js";
 
 const TAILNET_BIND_WARNING =
   "No Tailscale address was detected during setup. The saved config will stay on loopback until Tailscale is available or TASKCORE_TAILNET_BIND_HOST is set.";
@@ -123,7 +127,8 @@ export async function promptServer(opts?: {
   });
 
   if (p.isCancel(deploymentModeSelection)) cancelled();
-  const deploymentMode = deploymentModeSelection as ServerConfig["deploymentMode"];
+  const deploymentMode =
+    deploymentModeSelection as ServerConfig["deploymentMode"];
 
   let exposure: ServerConfig["exposure"] = "private";
   if (deploymentMode === "authenticated") {
@@ -193,7 +198,8 @@ export async function promptServer(opts?: {
       placeholder: "https://taskcore.example.com",
       validate: (val) => {
         const candidate = val.trim();
-        if (!candidate) return "Public base URL is required for public exposure";
+        if (!candidate)
+          return "Public base URL is required for public exposure";
         try {
           const url = new URL(candidate);
           if (url.protocol !== "http:" && url.protocol !== "https:") {

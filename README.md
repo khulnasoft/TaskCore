@@ -1,7 +1,5 @@
-<p align="center">
-  <img src="doc/assets/header.png" alt="Taskcore — runs your business" width="720" />
-</p>
-
+# TaskCore
+  
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
   <a href="https://taskcore.khulnasoft.com/docs"><strong>Docs</strong></a> &middot;
@@ -314,10 +312,6 @@ MIT &copy; 2026 KhulnaSoft, Ltd
 <br/>
 
 ---
-
-<p align="center">
-  <img src="doc/assets/footer.jpg" alt="" width="720" />
-</p>
 
 <p align="center">
   <sub>Open source under MIT. Built for people who want to run companies, not babysit agents.</sub>

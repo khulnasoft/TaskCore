@@ -6,11 +6,11 @@ Taskcore's execution policy system ensures tasks are completed with the right le
 
 An execution policy is an optional structured object on any issue that defines what must happen after the executor finishes their work. It supports three layers of enforcement:
 
-| Layer | Purpose | Scope |
-|---|---|---|
-| **Comment required** | Every agent run must post a comment back to the issue | Runtime invariant (always on) |
-| **Review stage** | A reviewer checks quality/correctness and can request changes | Per-issue, optional |
-| **Approval stage** | A manager/stakeholder gives final sign-off | Per-issue, optional |
+| Layer                | Purpose                                                       | Scope                         |
+| -------------------- | ------------------------------------------------------------- | ----------------------------- |
+| **Comment required** | Every agent run must post a comment back to the issue         | Runtime invariant (always on) |
+| **Review stage**     | A reviewer checks quality/correctness and can request changes | Per-issue, optional           |
+| **Approval stage**   | A manager/stakeholder gives final sign-off                    | Per-issue, optional           |
 
 These layers compose. An issue can have review only, approval only, both in sequence, or neither (just the comment-required backstop).
 
@@ -21,22 +21,22 @@ These layers compose. An issue can have review only, approval only, both in sequ
 ```ts
 interface IssueExecutionPolicy {
   mode: "normal" | "auto";
-  commentRequired: boolean;       // always true, enforced by runtime
-  stages: IssueExecutionStage[];  // ordered list of review/approval stages
+  commentRequired: boolean; // always true, enforced by runtime
+  stages: IssueExecutionStage[]; // ordered list of review/approval stages
 }
 
 interface IssueExecutionStage {
-  id: string;                                 // auto-generated UUID
-  type: "review" | "approval";                // stage kind
-  approvalsNeeded: 1;                         // multi-approval is not supported yet
+  id: string; // auto-generated UUID
+  type: "review" | "approval"; // stage kind
+  approvalsNeeded: 1; // multi-approval is not supported yet
   participants: IssueExecutionStageParticipant[];
 }
 
 interface IssueExecutionStageParticipant {
   id: string;
   type: "agent" | "user";
-  agentId?: string | null;    // set when type is "agent"
-  userId?: string | null;     // set when type is "user"
+  agentId?: string | null; // set when type is "agent"
+  userId?: string | null; // set when type is "user"
 }
 ```
 
@@ -74,7 +74,7 @@ interface IssueExecutionDecision {
   actorAgentId: string | null;
   actorUserId: string | null;
   outcome: "approved" | "changes_requested";
-  body: string;              // required comment explaining the decision
+  body: string; // required comment explaining the decision
   createdByRunId: string | null;
   createdAt: Date;
 }
@@ -127,23 +127,33 @@ interface IssueExecutionDecision {
 ### Policy Variants
 
 **Review only** (no approval stage):
+
 ```json
 {
   "stages": [
-    { "type": "review", "participants": [{ "type": "agent", "agentId": "qa-agent-id" }] }
+    {
+      "type": "review",
+      "participants": [{ "type": "agent", "agentId": "qa-agent-id" }]
+    }
   ]
 }
 ```
+
 Executor finishes → reviewer approves → done.
 
 **Approval only** (no review stage):
+
 ```json
 {
   "stages": [
-    { "type": "approval", "participants": [{ "type": "user", "userId": "manager-user-id" }] }
+    {
+      "type": "approval",
+      "participants": [{ "type": "user", "userId": "manager-user-id" }]
+    }
   ]
 }
 ```
+
 Executor finishes → approver signs off → done.
 
 **Multiple reviewers/approvers:**
@@ -162,11 +172,11 @@ This prevents silent completions where an agent finishes work but leaves no trac
 
 ### Run-level tracking fields
 
-| Field | Description |
-|---|---|
-| `issueCommentStatus` | `satisfied`, `retry_queued`, or `retry_exhausted` |
+| Field                              | Description                                         |
+| ---------------------------------- | --------------------------------------------------- |
+| `issueCommentStatus`               | `satisfied`, `retry_queued`, or `retry_exhausted`   |
 | `issueCommentSatisfiedByCommentId` | Links to the comment that fulfilled the requirement |
-| `issueCommentRetryQueuedAt` | Timestamp when the retry wake was scheduled |
+| `issueCommentRetryQueuedAt`        | Timestamp when the retry wake was scheduled         |
 
 ## Access Control
 
@@ -250,6 +260,7 @@ The runtime reassigns to the original executor automatically.
 ### New Issue Dialog
 
 When creating a new issue, **Reviewer** and **Approver** buttons appear alongside the assignee selector. Clicking either opens a participant picker with:
+
 - "No reviewer" / "No approver" (to clear)
 - "Me" (current user)
 - Full list of agents and board users

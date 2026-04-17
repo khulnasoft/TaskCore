@@ -45,7 +45,9 @@ describe("agent jwt env helpers", () => {
   it("loads secret from .env next to explicit config path", () => {
     const configPath = tempConfigPath();
     const envPath = resolveAgentJwtEnvFile(configPath);
-    fs.writeFileSync(envPath, "TASKCORE_AGENT_JWT_SECRET=test-secret\n", { mode: 0o600 });
+    fs.writeFileSync(envPath, "TASKCORE_AGENT_JWT_SECRET=test-secret\n", {
+      mode: 0o600,
+    });
 
     const loaded = readAgentJwtSecretFromEnv(configPath);
     expect(loaded).toBe("test-secret");
@@ -55,7 +57,9 @@ describe("agent jwt env helpers", () => {
   it("doctor check passes when secret exists in adjacent .env", () => {
     const configPath = tempConfigPath();
     const envPath = resolveAgentJwtEnvFile(configPath);
-    fs.writeFileSync(envPath, "TASKCORE_AGENT_JWT_SECRET=check-secret\n", { mode: 0o600 });
+    fs.writeFileSync(envPath, "TASKCORE_AGENT_JWT_SECRET=check-secret\n", {
+      mode: 0o600,
+    });
 
     const result = agentJwtSecretCheck(configPath);
     expect(result.status).toBe("pass");
@@ -74,6 +78,8 @@ describe("agent jwt env helpers", () => {
 
     const contents = fs.readFileSync(envPath, "utf-8");
     expect(contents).toContain('TASKCORE_WORKTREE_COLOR="#439edb"');
-    expect(readTaskcoreEnvEntries(envPath).TASKCORE_WORKTREE_COLOR).toBe("#439edb");
+    expect(readTaskcoreEnvEntries(envPath).TASKCORE_WORKTREE_COLOR).toBe(
+      "#439edb",
+    );
   });
 });

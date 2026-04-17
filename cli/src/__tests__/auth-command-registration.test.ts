@@ -11,6 +11,8 @@ describe("registerClientAuthCommands", () => {
 
     const login = auth.commands.find((command) => command.name() === "login");
     expect(login).toBeDefined();
-    expect(login?.options.filter((option) => option.long === "--company-id")).toHaveLength(1);
+    expect(
+      login?.options.filter((option) => option.long === "--company-id"),
+    ).toHaveLength(1);
   });
 });

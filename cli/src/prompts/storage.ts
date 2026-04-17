@@ -1,6 +1,9 @@
 import * as p from "@clack/prompts";
 import type { StorageConfig } from "../config/schema.js";
-import { resolveDefaultStorageDir, resolveTaskcoreInstanceId } from "../config/home.js";
+import {
+  resolveDefaultStorageDir,
+  resolveTaskcoreInstanceId,
+} from "../config/home.js";
 
 function defaultStorageBaseDir(): string {
   return resolveDefaultStorageDir(resolveTaskcoreInstanceId());
@@ -22,7 +25,9 @@ export function defaultStorageConfig(): StorageConfig {
   };
 }
 
-export async function promptStorage(current?: StorageConfig): Promise<StorageConfig> {
+export async function promptStorage(
+  current?: StorageConfig,
+): Promise<StorageConfig> {
   const base = current ?? defaultStorageConfig();
 
   const provider = await p.select({
@@ -53,7 +58,8 @@ export async function promptStorage(current?: StorageConfig): Promise<StorageCon
       defaultValue: base.localDisk.baseDir || defaultStorageBaseDir(),
       placeholder: defaultStorageBaseDir(),
       validate: (value) => {
-        if (!value || value.trim().length === 0) return "Storage base directory is required";
+        if (!value || value.trim().length === 0)
+          return "Storage base directory is required";
       },
     });
 
@@ -143,4 +149,3 @@ export async function promptStorage(current?: StorageConfig): Promise<StorageCon
     },
   };
 }
-

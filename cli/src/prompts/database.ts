@@ -6,7 +6,9 @@ import {
   resolveTaskcoreInstanceId,
 } from "../config/home.js";
 
-export async function promptDatabase(current?: DatabaseConfig): Promise<DatabaseConfig> {
+export async function promptDatabase(
+  current?: DatabaseConfig,
+): Promise<DatabaseConfig> {
   const instanceId = resolveTaskcoreInstanceId();
   const defaultEmbeddedDir = resolveDefaultEmbeddedPostgresDir(instanceId);
   const defaultBackupDir = resolveDefaultBackupDir(instanceId);
@@ -25,7 +27,11 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
   const mode = await p.select({
     message: "Database mode",
     options: [
-      { value: "embedded-postgres" as const, label: "Embedded PostgreSQL (managed locally)", hint: "recommended" },
+      {
+        value: "embedded-postgres" as const,
+        label: "Embedded PostgreSQL (managed locally)",
+        hint: "recommended",
+      },
       { value: "postgres" as const, label: "PostgreSQL (external server)" },
     ],
     initialValue: base.mode,
@@ -37,7 +43,8 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
   }
 
   let connectionString: string | undefined = base.connectionString;
-  let embeddedPostgresDataDir = base.embeddedPostgresDataDir || defaultEmbeddedDir;
+  let embeddedPostgresDataDir =
+    base.embeddedPostgresDataDir || defaultEmbeddedDir;
   let embeddedPostgresPort = base.embeddedPostgresPort || 54329;
 
   if (mode === "postgres") {
@@ -47,7 +54,8 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
       placeholder: "postgres://user:pass@localhost:5432/taskcore",
       validate: (val) => {
         if (!val) return "Connection string is required for PostgreSQL mode";
-        if (!val.startsWith("postgres")) return "Must be a postgres:// or postgresql:// URL";
+        if (!val.startsWith("postgres"))
+          return "Must be a postgres:// or postgresql:// URL";
       },
     });
 
@@ -77,7 +85,8 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
       placeholder: "54329",
       validate: (val) => {
         const n = Number(val);
-        if (!Number.isInteger(n) || n < 1 || n > 65535) return "Port must be an integer between 1 and 65535";
+        if (!Number.isInteger(n) || n < 1 || n > 65535)
+          return "Port must be an integer between 1 and 65535";
       },
     });
 
@@ -103,7 +112,10 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
     message: "Backup directory",
     defaultValue: base.backup.dir || defaultBackupDir,
     placeholder: defaultBackupDir,
-    validate: (val) => (!val || val.trim().length === 0 ? "Backup directory is required" : undefined),
+    validate: (val) =>
+      !val || val.trim().length === 0
+        ? "Backup directory is required"
+        : undefined,
   });
   if (p.isCancel(backupDirInput)) {
     p.cancel("Setup cancelled.");
@@ -116,7 +128,8 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
     placeholder: "60",
     validate: (val) => {
       const n = Number(val);
-      if (!Number.isInteger(n) || n < 1) return "Interval must be a positive integer";
+      if (!Number.isInteger(n) || n < 1)
+        return "Interval must be a positive integer";
       if (n > 10080) return "Interval must be 10080 minutes (7 days) or less";
       return undefined;
     },
@@ -132,7 +145,8 @@ export async function promptDatabase(current?: DatabaseConfig): Promise<Database
     placeholder: "30",
     validate: (val) => {
       const n = Number(val);
-      if (!Number.isInteger(n) || n < 1) return "Retention must be a positive integer";
+      if (!Number.isInteger(n) || n < 1)
+        return "Retention must be a positive integer";
       if (n > 3650) return "Retention must be 3650 days or less";
       return undefined;
     },

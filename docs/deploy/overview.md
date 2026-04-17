@@ -7,11 +7,11 @@ Taskcore supports three deployment configurations, from zero-friction local to i
 
 ## Deployment Modes
 
-| Mode | Auth | Best For |
-|------|------|----------|
-| `local_trusted` | No login required | Single-operator local machine |
-| `authenticated` + `private` | Login required | Private network (Tailscale, VPN, LAN) |
-| `authenticated` + `public` | Login required | Internet-facing cloud deployment |
+| Mode                        | Auth              | Best For                              |
+| --------------------------- | ----------------- | ------------------------------------- |
+| `local_trusted`             | No login required | Single-operator local machine         |
+| `authenticated` + `private` | Login required    | Private network (Tailscale, VPN, LAN) |
+| `authenticated` + `public`  | Login required    | Internet-facing cloud deployment      |
 
 ## Quick Comparison
 

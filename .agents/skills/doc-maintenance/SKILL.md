@@ -21,11 +21,11 @@ Detect documentation drift and fix it via PR — no rewrites, no churn.
 
 ## Target Documents
 
-| Document | Path | What matters |
-|----------|------|-------------|
-| README | `README.md` | Features table, roadmap, quickstart, "what is" accuracy, "works with" table |
-| SPEC | `doc/SPEC.md` | No false "not supported" claims, major model/schema accuracy |
-| PRODUCT | `doc/PRODUCT.md` | Core concepts, feature list, principles accuracy |
+| Document | Path             | What matters                                                                |
+| -------- | ---------------- | --------------------------------------------------------------------------- |
+| README   | `README.md`      | Features table, roadmap, quickstart, "what is" accuracy, "works with" table |
+| SPEC     | `doc/SPEC.md`    | No false "not supported" claims, major model/schema accuracy                |
+| PRODUCT  | `doc/PRODUCT.md` | Core concepts, feature list, principles accuracy                            |
 
 Out of scope: DEVELOPING.md, DATABASE.md, CLI.md, doc/plans/, skill files,
 release notes. These are dev-facing or ephemeral — lower risk of user-facing
@@ -169,15 +169,15 @@ were needed, commit the cursor update to the current branch.
 
 ## Change Classification Rules
 
-| Signal | Category | Doc update needed? |
-|--------|----------|-------------------|
-| `feat:`, `add`, `implement`, `support` in message | Feature | Yes if user-facing |
-| `remove`, `drop`, `breaking`, `!:` in message | Breaking | Yes |
-| New top-level directory or config file | Structural | Maybe |
-| `fix:`, `bugfix` | Fix | No (unless it changes behavior described in docs) |
-| `refactor:`, `chore:`, `ci:`, `test:` | Maintenance | No |
-| `docs:` | Doc change | No (already handled) |
-| Dependency bumps only | Maintenance | No |
+| Signal                                            | Category    | Doc update needed?                                |
+| ------------------------------------------------- | ----------- | ------------------------------------------------- |
+| `feat:`, `add`, `implement`, `support` in message | Feature     | Yes if user-facing                                |
+| `remove`, `drop`, `breaking`, `!:` in message     | Breaking    | Yes                                               |
+| New top-level directory or config file            | Structural  | Maybe                                             |
+| `fix:`, `bugfix`                                  | Fix         | No (unless it changes behavior described in docs) |
+| `refactor:`, `chore:`, `ci:`, `test:`             | Maintenance | No                                                |
+| `docs:`                                           | Doc change  | No (already handled)                              |
+| Dependency bumps only                             | Maintenance | No                                                |
 
 ## Patch Style Guide
 

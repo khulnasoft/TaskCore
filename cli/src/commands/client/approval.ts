@@ -43,7 +43,9 @@ interface ApprovalCommentOptions extends BaseClientOptions {
 }
 
 export function registerApprovalCommands(program: Command): void {
-  const approval = program.command("approval").description("Approval operations");
+  const approval = program
+    .command("approval")
+    .description("Approval operations");
 
   addCommonClientOptions(
     approval
@@ -98,7 +100,9 @@ export function registerApprovalCommands(program: Command): void {
       .action(async (approvalId: string, opts: BaseClientOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const row = await ctx.api.get<Approval>(`/api/approvals/${approvalId}`);
+          const row = await ctx.api.get<Approval>(
+            `/api/approvals/${approvalId}`,
+          );
           printOutput(row, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -111,7 +115,10 @@ export function registerApprovalCommands(program: Command): void {
       .command("create")
       .description("Create an approval request")
       .requiredOption("-C, --company-id <id>", "Company ID")
-      .requiredOption("--type <type>", "Approval type (hire_agent|approve_ceo_strategy)")
+      .requiredOption(
+        "--type <type>",
+        "Approval type (hire_agent|approve_ceo_strategy)",
+      )
       .requiredOption("--payload <json>", "Approval payload as JSON object")
       .option("--requested-by-agent-id <id>", "Requesting agent ID")
       .option("--issue-ids <csv>", "Comma-separated linked issue IDs")
@@ -125,7 +132,10 @@ export function registerApprovalCommands(program: Command): void {
             requestedByAgentId: opts.requestedByAgentId,
             issueIds: parseCsv(opts.issueIds),
           });
-          const created = await ctx.api.post<Approval>(`/api/companies/${ctx.companyId}/approvals`, payload);
+          const created = await ctx.api.post<Approval>(
+            `/api/companies/${ctx.companyId}/approvals`,
+            payload,
+          );
           printOutput(created, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -148,7 +158,10 @@ export function registerApprovalCommands(program: Command): void {
             decisionNote: opts.decisionNote,
             decidedByUserId: opts.decidedByUserId,
           });
-          const updated = await ctx.api.post<Approval>(`/api/approvals/${approvalId}/approve`, payload);
+          const updated = await ctx.api.post<Approval>(
+            `/api/approvals/${approvalId}/approve`,
+            payload,
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -170,7 +183,10 @@ export function registerApprovalCommands(program: Command): void {
             decisionNote: opts.decisionNote,
             decidedByUserId: opts.decidedByUserId,
           });
-          const updated = await ctx.api.post<Approval>(`/api/approvals/${approvalId}/reject`, payload);
+          const updated = await ctx.api.post<Approval>(
+            `/api/approvals/${approvalId}/reject`,
+            payload,
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -192,7 +208,10 @@ export function registerApprovalCommands(program: Command): void {
             decisionNote: opts.decisionNote,
             decidedByUserId: opts.decidedByUserId,
           });
-          const updated = await ctx.api.post<Approval>(`/api/approvals/${approvalId}/request-revision`, payload);
+          const updated = await ctx.api.post<Approval>(
+            `/api/approvals/${approvalId}/request-revision`,
+            payload,
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -210,9 +229,14 @@ export function registerApprovalCommands(program: Command): void {
         try {
           const ctx = resolveCommandContext(opts);
           const payload = resubmitApprovalSchema.parse({
-            payload: opts.payload ? parseJsonObject(opts.payload, "payload") : undefined,
+            payload: opts.payload
+              ? parseJsonObject(opts.payload, "payload")
+              : undefined,
           });
-          const updated = await ctx.api.post<Approval>(`/api/approvals/${approvalId}/resubmit`, payload);
+          const updated = await ctx.api.post<Approval>(
+            `/api/approvals/${approvalId}/resubmit`,
+            payload,
+          );
           printOutput(updated, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -229,9 +253,12 @@ export function registerApprovalCommands(program: Command): void {
       .action(async (approvalId: string, opts: ApprovalCommentOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const created = await ctx.api.post<ApprovalComment>(`/api/approvals/${approvalId}/comments`, {
-            body: opts.body,
-          });
+          const created = await ctx.api.post<ApprovalComment>(
+            `/api/approvals/${approvalId}/comments`,
+            {
+              body: opts.body,
+            },
+          );
           printOutput(created, { json: ctx.json });
         } catch (err) {
           handleCommandError(err);
@@ -242,18 +269,27 @@ export function registerApprovalCommands(program: Command): void {
 
 function parseCsv(value: string | undefined): string[] | undefined {
   if (!value) return undefined;
-  const rows = value.split(",").map((v) => v.trim()).filter(Boolean);
+  const rows = value
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
   return rows.length > 0 ? rows : undefined;
 }
 
 function parseJsonObject(value: string, name: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value) as unknown;
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
       throw new Error(`${name} must be a JSON object`);
     }
     return parsed as Record<string, unknown>;
   } catch (err) {
-    throw new Error(`Invalid ${name} JSON: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Invalid ${name} JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }

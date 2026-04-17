@@ -22,7 +22,15 @@ describe("home path resolution", () => {
     const paths = describeLocalInstancePaths();
     expect(paths.homeDir).toBe(path.resolve(os.homedir(), ".taskcore"));
     expect(paths.instanceId).toBe("default");
-    expect(paths.configPath).toBe(path.resolve(os.homedir(), ".taskcore", "instances", "default", "config.json"));
+    expect(paths.configPath).toBe(
+      path.resolve(
+        os.homedir(),
+        ".taskcore",
+        "instances",
+        "default",
+        "config.json",
+      ),
+    );
   });
 
   it("supports TASKCORE_HOME and explicit instance ids", () => {
@@ -34,7 +42,9 @@ describe("home path resolution", () => {
   });
 
   it("rejects invalid instance ids", () => {
-    expect(() => resolveTaskcoreInstanceId("bad/id")).toThrow(/Invalid instance id/);
+    expect(() => resolveTaskcoreInstanceId("bad/id")).toThrow(
+      /Invalid instance id/,
+    );
   });
 
   it("expands ~ prefixes", () => {

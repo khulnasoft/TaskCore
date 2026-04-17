@@ -39,11 +39,11 @@ pnpm taskcore doctor
 
 ### Environment Overrides
 
-| Variable | Description |
-|----------|-------------|
-| `TASKCORE_SECRETS_MASTER_KEY` | 32-byte key as base64, hex, or raw string |
-| `TASKCORE_SECRETS_MASTER_KEY_FILE` | Custom key file path |
-| `TASKCORE_SECRETS_STRICT_MODE` | Set to `true` to enforce secret refs |
+| Variable                           | Description                               |
+| ---------------------------------- | ----------------------------------------- |
+| `TASKCORE_SECRETS_MASTER_KEY`      | 32-byte key as base64, hex, or raw string |
+| `TASKCORE_SECRETS_MASTER_KEY_FILE` | Custom key file path                      |
+| `TASKCORE_SECRETS_STRICT_MODE`     | Set to `true` to enforce secret refs      |
 
 ## Strict Mode
 

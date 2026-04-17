@@ -12,16 +12,16 @@ The `codex_local` adapter runs OpenAI's Codex CLI locally. It supports session p
 
 ## Configuration Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `cwd` | string | Yes | Working directory for the agent process (absolute path; created automatically if missing when permissions allow) |
-| `model` | string | No | Model to use |
-| `promptTemplate` | string | No | Prompt used for all runs |
-| `env` | object | No | Environment variables (supports secret refs) |
-| `timeoutSec` | number | No | Process timeout (0 = no timeout) |
-| `graceSec` | number | No | Grace period before force-kill |
-| `fastMode` | boolean | No | Enables Codex Fast mode. Currently supported on `gpt-5.4` only and burns credits faster |
-| `dangerouslyBypassApprovalsAndSandbox` | boolean | No | Skip safety checks (dev only) |
+| Field                                  | Type    | Required | Description                                                                                                      |
+| -------------------------------------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `cwd`                                  | string  | Yes      | Working directory for the agent process (absolute path; created automatically if missing when permissions allow) |
+| `model`                                | string  | No       | Model to use                                                                                                     |
+| `promptTemplate`                       | string  | No       | Prompt used for all runs                                                                                         |
+| `env`                                  | object  | No       | Environment variables (supports secret refs)                                                                     |
+| `timeoutSec`                           | number  | No       | Process timeout (0 = no timeout)                                                                                 |
+| `graceSec`                             | number  | No       | Grace period before force-kill                                                                                   |
+| `fastMode`                             | boolean | No       | Enables Codex Fast mode. Currently supported on `gpt-5.4` only and burns credits faster                          |
+| `dangerouslyBypassApprovalsAndSandbox` | boolean | No       | Skip safety checks (dev only)                                                                                    |
 
 ## Session Persistence
 

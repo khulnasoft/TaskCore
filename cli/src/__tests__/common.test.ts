@@ -43,7 +43,10 @@ describe("resolveCommandContext", () => {
     );
     process.env.AGENT_KEY = "key-from-env";
 
-    const resolved = resolveCommandContext({ context: contextPath }, { requireCompany: true });
+    const resolved = resolveCommandContext(
+      { context: contextPath },
+      { requireCompany: true },
+    );
     expect(resolved.api.apiBase).toBe("http://127.0.0.1:9999");
     expect(resolved.companyId).toBe("company-profile");
     expect(resolved.api.apiKey).toBe("key-from-env");
@@ -92,7 +95,10 @@ describe("resolveCommandContext", () => {
     );
 
     expect(() =>
-      resolveCommandContext({ context: contextPath, apiBase: "http://localhost:3100" }, { requireCompany: true }),
+      resolveCommandContext(
+        { context: contextPath, apiBase: "http://localhost:3100" },
+        { requireCompany: true },
+      ),
     ).toThrow(/Company ID is required/);
   });
 });

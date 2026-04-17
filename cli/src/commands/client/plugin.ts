@@ -25,7 +25,6 @@ interface PluginRecord {
   updatedAt: string;
 }
 
-
 // ---------------------------------------------------------------------------
 // Option types
 // ---------------------------------------------------------------------------
@@ -92,7 +91,9 @@ function formatPlugin(p: PluginRecord): string {
 // ---------------------------------------------------------------------------
 
 export function registerPluginCommands(program: Command): void {
-  const plugin = program.command("plugin").description("Plugin lifecycle management");
+  const plugin = program
+    .command("plugin")
+    .description("Plugin lifecycle management");
 
   // -------------------------------------------------------------------------
   // plugin list
@@ -101,12 +102,19 @@ export function registerPluginCommands(program: Command): void {
     plugin
       .command("list")
       .description("List installed plugins")
-      .option("--status <status>", "Filter by status (ready, error, disabled, installed, upgrade_pending)")
+      .option(
+        "--status <status>",
+        "Filter by status (ready, error, disabled, installed, upgrade_pending)",
+      )
       .action(async (opts: PluginListOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
-          const qs = opts.status ? `?status=${encodeURIComponent(opts.status)}` : "";
-          const plugins = await ctx.api.get<PluginRecord[]>(`/api/plugins${qs}`);
+          const qs = opts.status
+            ? `?status=${encodeURIComponent(opts.status)}`
+            : "";
+          const plugins = await ctx.api.get<PluginRecord[]>(
+            `/api/plugins${qs}`,
+          );
 
           if (ctx.json) {
             printOutput(plugins, { json: true });
@@ -136,13 +144,20 @@ export function registerPluginCommands(program: Command): void {
       .command("install <package>")
       .description(
         "Install a plugin from a local path or npm package.\n" +
-        "  Examples:\n" +
-        "    taskcore plugin install ./my-plugin              # local path\n" +
-        "    taskcore plugin install @acme/plugin-linear      # npm package\n" +
-        "    taskcore plugin install @acme/plugin-linear@1.2  # pinned version",
+          "  Examples:\n" +
+          "    taskcore plugin install ./my-plugin              # local path\n" +
+          "    taskcore plugin install @acme/plugin-linear      # npm package\n" +
+          "    taskcore plugin install @acme/plugin-linear@1.2  # pinned version",
       )
-      .option("-l, --local", "Treat <package> as a local filesystem path", false)
-      .option("--version <version>", "Specific npm version to install (npm packages only)")
+      .option(
+        "-l, --local",
+        "Treat <package> as a local filesystem path",
+        false,
+      )
+      .option(
+        "--version <version>",
+        "Specific npm version to install (npm packages only)",
+      )
       .action(async (packageArg: string, opts: PluginInstallOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
@@ -167,11 +182,14 @@ export function registerPluginCommands(program: Command): void {
             );
           }
 
-          const installedPlugin = await ctx.api.post<PluginRecord>("/api/plugins/install", {
-            packageName: resolvedPackage,
-            version: opts.version,
-            isLocalPath: isLocal,
-          });
+          const installedPlugin = await ctx.api.post<PluginRecord>(
+            "/api/plugins/install",
+            {
+              packageName: resolvedPackage,
+              version: opts.version,
+              isLocalPath: isLocal,
+            },
+          );
 
           if (ctx.json) {
             printOutput(installedPlugin, { json: true });
@@ -206,9 +224,13 @@ export function registerPluginCommands(program: Command): void {
       .command("uninstall <pluginKey>")
       .description(
         "Uninstall a plugin by its plugin key or database ID.\n" +
-        "  Use --force to hard-purge all state and config.",
+          "  Use --force to hard-purge all state and config.",
       )
-      .option("--force", "Purge all plugin state and config (hard delete)", false)
+      .option(
+        "--force",
+        "Purge all plugin state and config (hard delete)",
+        false,
+      )
       .action(async (pluginKey: string, opts: PluginUninstallOptions) => {
         try {
           const ctx = resolveCommandContext(opts);
@@ -234,7 +256,11 @@ export function registerPluginCommands(program: Command): void {
             return;
           }
 
-          console.log(pc.green(`✓ Uninstalled ${pc.bold(pluginKey)}${purge ? " (purged)" : ""}`));
+          console.log(
+            pc.green(
+              `✓ Uninstalled ${pc.bold(pluginKey)}${purge ? " (purged)" : ""}`,
+            ),
+          );
         } catch (err) {
           handleCommandError(err);
         }
@@ -260,7 +286,11 @@ export function registerPluginCommands(program: Command): void {
             return;
           }
 
-          console.log(pc.green(`✓ Enabled ${pc.bold(pluginKey)} — status: ${result?.status ?? "unknown"}`));
+          console.log(
+            pc.green(
+              `✓ Enabled ${pc.bold(pluginKey)} — status: ${result?.status ?? "unknown"}`,
+            ),
+          );
         } catch (err) {
           handleCommandError(err);
         }
@@ -286,7 +316,11 @@ export function registerPluginCommands(program: Command): void {
             return;
           }
 
-          console.log(pc.dim(`Disabled ${pc.bold(pluginKey)} — status: ${result?.status ?? "unknown"}`));
+          console.log(
+            pc.dim(
+              `Disabled ${pc.bold(pluginKey)} — status: ${result?.status ?? "unknown"}`,
+            ),
+          );
         } catch (err) {
           handleCommandError(err);
         }
@@ -362,8 +396,8 @@ export function registerPluginCommands(program: Command): void {
           for (const ex of rows) {
             console.log(
               `${pc.bold(ex.displayName)}  ${pc.dim(ex.pluginKey)}\n` +
-              `  ${ex.description}\n` +
-              `  ${pc.cyan(`taskcore plugin install ${ex.localPath}`)}`,
+                `  ${ex.description}\n` +
+                `  ${pc.cyan(`taskcore plugin install ${ex.localPath}`)}`,
             );
           }
         } catch (err) {

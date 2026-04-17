@@ -15,14 +15,14 @@ pnpm taskcore --help
 
 All commands support:
 
-| Flag | Description |
-|------|-------------|
+| Flag                | Description                                            |
+| ------------------- | ------------------------------------------------------ |
 | `--data-dir <path>` | Local Taskcore data root (isolates from `~/.taskcore`) |
-| `--api-base <url>` | API base URL |
-| `--api-key <token>` | API authentication token |
-| `--context <path>` | Context file path |
-| `--profile <name>` | Context profile name |
-| `--json` | Output as JSON |
+| `--api-base <url>`  | API base URL                                           |
+| `--api-key <token>` | API authentication token                               |
+| `--context <path>`  | Context file path                                      |
+| `--profile <name>`  | Context profile name                                   |
+| `--json`            | Output as JSON                                         |
 
 Company-scoped commands also accept `--company-id <id>`.
 

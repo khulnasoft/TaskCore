@@ -237,8 +237,16 @@ export interface MemoryUsage {
   provider: string;
   biller?: string;
   model?: string;
-  billingType?: "metered_api" | "subscription_included" | "subscription_overage" | "unknown";
-  attributionMode?: "billed_directly" | "included_in_run" | "external_invoice" | "untracked";
+  billingType?:
+    | "metered_api"
+    | "subscription_included"
+    | "subscription_overage"
+    | "unknown";
+  attributionMode?:
+    | "billed_directly"
+    | "included_in_run"
+    | "external_invoice"
+    | "untracked";
   inputTokens?: number;
   cachedInputTokens?: number;
   outputTokens?: number;
@@ -337,8 +345,14 @@ export interface MemoryAdapter {
   }>;
   query(req: MemoryQueryRequest): Promise<MemoryContextBundle>;
   list(req: MemoryListRequest): Promise<MemoryListPage>;
-  get(handle: MemoryRecordHandle, scope: MemoryScope): Promise<MemorySnippet | null>;
-  forget(handles: MemoryRecordHandle[], scope: MemoryScope): Promise<{ usage?: MemoryUsage[] }>;
+  get(
+    handle: MemoryRecordHandle,
+    scope: MemoryScope,
+  ): Promise<MemorySnippet | null>;
+  forget(
+    handles: MemoryRecordHandle[],
+    scope: MemoryScope,
+  ): Promise<{ usage?: MemoryUsage[] }>;
 }
 ```
 
