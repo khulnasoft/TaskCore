@@ -128,13 +128,13 @@ gh run view <RUN_ID> --log-failed
 
 For each failing check, classify it:
 
-| Failure type | Action |
-|---|---|
-| Code/test regression | Reproduce locally, fix, and verify |
-| Lint/type/build mismatch | Run the matching local command from the workflow and fix it |
-| Flake or transient infra issue | Rerun once if evidence supports flakiness |
-| External service/status app failure | Escalate with the details URL and owner guess |
-| Missing secret/permission/branch protection issue | Escalate immediately |
+| Failure type                                      | Action                                                      |
+| ------------------------------------------------- | ----------------------------------------------------------- |
+| Code/test regression                              | Reproduce locally, fix, and verify                          |
+| Lint/type/build mismatch                          | Run the matching local command from the workflow and fix it |
+| Flake or transient infra issue                    | Rerun once if evidence supports flakiness                   |
+| External service/status app failure               | Escalate with the details URL and owner guess               |
+| Missing secret/permission/branch protection issue | Escalate immediately                                        |
 
 Only rerun a failed job once without code changes. Do not loop on reruns.
 

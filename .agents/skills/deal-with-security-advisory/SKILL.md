@@ -11,18 +11,18 @@ description: >
 
 ## ⚠️ CRITICAL: This is a security vulnerability. Everything about this process is confidential until the advisory is published. Do not mention the vulnerability details in any public commit message, PR title, branch name, or comment. Do not push anything to a public branch. Do not discuss specifics in any public channel. Assume anything on the public repo is visible to attackers who will exploit the window between disclosure and user upgrades.
 
-***
+---
 
 ## Context
 
 A security vulnerability has been reported via GitHub Security Advisory:
 
-* **Advisory:** {{ghsaId}} (e.g. GHSA-x8hx-rhr2-9rf7)
-* **Reporter:** {{reporterHandle}}
-* **Severity:** {{severity}}
-* **Notes:** {{notes}}
+- **Advisory:** {{ghsaId}} (e.g. GHSA-x8hx-rhr2-9rf7)
+- **Reporter:** {{reporterHandle}}
+- **Severity:** {{severity}}
+- **Notes:** {{notes}}
 
-***
+---
 
 ## Step 0: Fetch the Advisory Details
 
@@ -71,26 +71,26 @@ git checkout -b security-fix
 
 **TIPS:**
 
-* Do not commit `pnpm-lock.yaml` — the repo has actions to manage this
-* Do not use descriptive branch names that leak the vulnerability (e.g., no `fix-dns-rebinding-rce`). Use something generic like `security-fix`
-* All work stays in the private fork until publication
-* CI/GitHub Actions will NOT run on the temporary private fork — this is a GitHub limitation by design. You must run tests locally
+- Do not commit `pnpm-lock.yaml` — the repo has actions to manage this
+- Do not use descriptive branch names that leak the vulnerability (e.g., no `fix-dns-rebinding-rce`). Use something generic like `security-fix`
+- All work stays in the private fork until publication
+- CI/GitHub Actions will NOT run on the temporary private fork — this is a GitHub limitation by design. You must run tests locally
 
 ## Step 3: Develop and Validate the Fix
 
 Write the patch. Same content standards as any PR:
 
-* It must functionally work — **run tests locally** since CI won't run on the private fork
-* Consider the whole codebase, not just the narrow vulnerability path. A patch that fixes one vector but opens another is worse than no patch
-* Ensure backwards compatibility for the database, or be explicit about what breaks
-* Make sure any UI components still look correct if the fix touches them
-* The fix should be minimal and focused — don't bundle unrelated changes into a security patch. Reviewers (and the reporter) should be able to read the diff and understand exactly what changed and why
+- It must functionally work — **run tests locally** since CI won't run on the private fork
+- Consider the whole codebase, not just the narrow vulnerability path. A patch that fixes one vector but opens another is worse than no patch
+- Ensure backwards compatibility for the database, or be explicit about what breaks
+- Make sure any UI components still look correct if the fix touches them
+- The fix should be minimal and focused — don't bundle unrelated changes into a security patch. Reviewers (and the reporter) should be able to read the diff and understand exactly what changed and why
 
 **Specific to security fixes:**
 
-* Verify the fix actually closes the attack vector described in the advisory. Reproduce the vulnerability first (using the reporter's description), then confirm the patch prevents it
-* Consider adjacent attack vectors — if DNS rebinding is the issue, are there other endpoints or modes with the same class of problem?
-* Do not introduce new dependencies unless absolutely necessary — new deps in a security patch raise eyebrows
+- Verify the fix actually closes the attack vector described in the advisory. Reproduce the vulnerability first (using the reporter's description), then confirm the patch prevents it
+- Consider adjacent attack vectors — if DNS rebinding is the issue, are there other endpoints or modes with the same class of problem?
+- Do not introduce new dependencies unless absolutely necessary — new deps in a security patch raise eyebrows
 
 Push your fix to the private fork:
 
@@ -175,9 +175,9 @@ EOF
 
 Publishing the advisory simultaneously:
 
-* Makes the GHSA public
-* Merges the temporary private fork into your repo
-* Triggers the CVE assignment (if requested in step 5)
+- Makes the GHSA public
+- Merges the temporary private fork into your repo
+- Triggers the CVE assignment (if requested in step 5)
 
 ### 6c. Cut a release immediately after merge
 
@@ -224,7 +224,7 @@ If the CVE hasn't been assigned yet, that's normal — it can take a few hours.
 
 Tell the human operator what you did by posting a comment to this task, including:
 
-* The published advisory URL: `https://github.com/paperclipai/paperclip/security/advisories/{{ghsaId}}`
-* The release URL
-* Whether the CVE has been assigned yet
-* All URLs to any pull requests or branches
+- The published advisory URL: `https://github.com/paperclipai/paperclip/security/advisories/{{ghsaId}}`
+- The release URL
+- Whether the CVE has been assigned yet
+- All URLs to any pull requests or branches

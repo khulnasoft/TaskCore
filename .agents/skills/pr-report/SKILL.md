@@ -57,7 +57,7 @@ Gather:
 - relevant repo docs, specs, and invariants
 - contributor intent if it is documented in PR text or design docs
 
-Start by answering: what is this change *trying* to become?
+Start by answering: what is this change _trying_ to become?
 
 ### 2. Build a mental model of the system
 
