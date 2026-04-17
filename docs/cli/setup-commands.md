@@ -101,12 +101,12 @@ pnpm taskcore allowed-hostname my-tailscale-host
 
 ## Local Storage Paths
 
-| Data | Default Path |
-|------|-------------|
-| Config | `~/.taskcore/instances/default/config.json` |
-| Database | `~/.taskcore/instances/default/db` |
-| Logs | `~/.taskcore/instances/default/logs` |
-| Storage | `~/.taskcore/instances/default/data/storage` |
+| Data        | Default Path                                       |
+| ----------- | -------------------------------------------------- |
+| Config      | `~/.taskcore/instances/default/config.json`        |
+| Database    | `~/.taskcore/instances/default/db`                 |
+| Logs        | `~/.taskcore/instances/default/logs`               |
+| Storage     | `~/.taskcore/instances/default/data/storage`       |
 | Secrets key | `~/.taskcore/instances/default/secrets/master.key` |
 
 Override with:

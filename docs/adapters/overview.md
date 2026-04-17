@@ -16,25 +16,25 @@ When a heartbeat fires, Taskcore:
 
 ## Built-in Adapters
 
-| Adapter | Type Key | Description |
-|---------|----------|-------------|
-| [Claude Local](/adapters/claude-local) | `claude_local` | Runs Claude Code CLI locally |
-| [Codex Local](/adapters/codex-local) | `codex_local` | Runs OpenAI Codex CLI locally |
-| [Gemini Local](/adapters/gemini-local) | `gemini_local` | Runs Gemini CLI locally (experimental — adapter package exists, not yet in stable type enum) |
-| OpenCode Local | `opencode_local` | Runs OpenCode CLI locally (multi-provider `provider/model`) |
-| Cursor | `cursor` | Runs Cursor in background mode |
-| Pi Local | `pi_local` | Runs an embedded Pi agent locally |
-| Hermes Local | `hermes_local` | Runs Hermes CLI locally (`hermes-paperclip-adapter`) |
-| OpenClaw Gateway | `openclaw_gateway` | Connects to an OpenClaw gateway endpoint |
-| [Process](/adapters/process) | `process` | Executes arbitrary shell commands |
-| [HTTP](/adapters/http) | `http` | Sends webhooks to external agents |
+| Adapter                                | Type Key           | Description                                                                                  |
+| -------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------- |
+| [Claude Local](/adapters/claude-local) | `claude_local`     | Runs Claude Code CLI locally                                                                 |
+| [Codex Local](/adapters/codex-local)   | `codex_local`      | Runs OpenAI Codex CLI locally                                                                |
+| [Gemini Local](/adapters/gemini-local) | `gemini_local`     | Runs Gemini CLI locally (experimental — adapter package exists, not yet in stable type enum) |
+| OpenCode Local                         | `opencode_local`   | Runs OpenCode CLI locally (multi-provider `provider/model`)                                  |
+| Cursor                                 | `cursor`           | Runs Cursor in background mode                                                               |
+| Pi Local                               | `pi_local`         | Runs an embedded Pi agent locally                                                            |
+| Hermes Local                           | `hermes_local`     | Runs Hermes CLI locally (`hermes-paperclip-adapter`)                                         |
+| OpenClaw Gateway                       | `openclaw_gateway` | Connects to an OpenClaw gateway endpoint                                                     |
+| [Process](/adapters/process)           | `process`          | Executes arbitrary shell commands                                                            |
+| [HTTP](/adapters/http)                 | `http`             | Sends webhooks to external agents                                                            |
 
 ### External (plugin) adapters
 
 These adapters ship as standalone npm packages and are installed via the plugin system:
 
-| Adapter | Package | Type Key | Description |
-|---------|---------|----------|-------------|
+| Adapter     | Package                          | Type Key      | Description                |
+| ----------- | -------------------------------- | ------------- | -------------------------- |
 | Droid Local | `@henkey/droid-taskcore-adapter` | `droid_local` | Runs Factory Droid locally |
 
 ## External Adapters
@@ -70,11 +70,11 @@ my-adapter/
       format-event.ts   # Terminal output for `taskcore run --watch`
 ```
 
-| Registry | What it does | Source |
-|----------|-------------|--------|
-| **Server** | Executes agents, captures results | `createServerAdapter()` from package root |
-| **UI** | Renders run transcripts, provides config forms | `ui-parser.js` (dynamic) or static import (built-in) |
-| **CLI** | Formats terminal output for live watching | Static import |
+| Registry   | What it does                                   | Source                                               |
+| ---------- | ---------------------------------------------- | ---------------------------------------------------- |
+| **Server** | Executes agents, captures results              | `createServerAdapter()` from package root            |
+| **UI**     | Renders run transcripts, provides config forms | `ui-parser.js` (dynamic) or static import (built-in) |
+| **CLI**    | Formats terminal output for live watching      | Static import                                        |
 
 ## Choosing an Adapter
 

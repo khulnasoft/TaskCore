@@ -11,13 +11,13 @@ If you're using Claude Code, the `.agents/skills/create-agent-adapter` skill can
 
 ## Two Paths
 
-| | Built-in | External Plugin |
-|---|---|---|
-| Source | Inside `taskcore-fork` | Separate npm package |
-| Distribution | Ships with Taskcore | Independent npm publish |
-| UI parser | Static import | Dynamic load from API |
-| Registration | Edit 3 registries | Auto-loaded at startup |
-| Best for | Core adapters, contributors | Third-party adapters, internal tools |
+|              | Built-in                    | External Plugin                      |
+| ------------ | --------------------------- | ------------------------------------ |
+| Source       | Inside `taskcore-fork`      | Separate npm package                 |
+| Distribution | Ships with Taskcore         | Independent npm publish              |
+| UI parser    | Static import               | Dynamic load from API                |
+| Registration | Edit 3 registries           | Auto-loaded at startup               |
+| Best for     | Core adapters, contributors | Third-party adapters, internal tools |
 
 For most cases, **build an external adapter plugin**. It's cleaner, independently versioned, and doesn't require modifying Taskcore's source. See [External Adapters](/adapters/external-adapters) for the full guide.
 
@@ -53,11 +53,9 @@ my-adapter/                   # external plugin
 `src/index.ts` is imported by all three consumers. Keep it dependency-free.
 
 ```ts
-export const type = "my_agent";        // snake_case, globally unique
+export const type = "my_agent"; // snake_case, globally unique
 export const label = "My Agent (local)";
-export const models = [
-  { id: "model-a", label: "Model A" },
-];
+export const models = [{ id: "model-a", label: "Model A" }];
 export const agentConfigurationDoc = `# my_agent configuration
 Use when: ...
 Don't use when: ...
@@ -84,23 +82,31 @@ Key responsibilities:
 
 ### Available Helpers
 
-| Helper | Source | Purpose |
-|--------|--------|---------|
+| Helper                       | Source                                 | Purpose                              |
+| ---------------------------- | -------------------------------------- | ------------------------------------ |
 | `runChildProcess(cmd, opts)` | `@taskcore/adapter-utils/server-utils` | Spawn with timeout, grace, streaming |
-| `buildTaskcoreEnv(agent)` | `@taskcore/adapter-utils/server-utils` | Inject `TASKCORE_*` env vars |
-| `renderTemplate(tpl, data)` | `@taskcore/adapter-utils/server-utils` | `{{variable}}` substitution |
-| `asString(v)` | `@taskcore/adapter-utils` | Safe config value extraction |
-| `asNumber(v)` | `@taskcore/adapter-utils` | Safe number extraction |
+| `buildTaskcoreEnv(agent)`    | `@taskcore/adapter-utils/server-utils` | Inject `TASKCORE_*` env vars         |
+| `renderTemplate(tpl, data)`  | `@taskcore/adapter-utils/server-utils` | `{{variable}}` substitution          |
+| `asString(v)`                | `@taskcore/adapter-utils`              | Safe config value extraction         |
+| `asNumber(v)`                | `@taskcore/adapter-utils`              | Safe number extraction               |
 
 ### AdapterExecutionContext
 
 ```ts
 interface AdapterExecutionContext {
   runId: string;
-  agent: { id: string; companyId: string; name: string; adapterConfig: unknown };
-  runtime: { sessionId: string | null; sessionParams: Record<string, unknown> | null };
-  config: Record<string, unknown>;      // agent's adapterConfig
-  context: Record<string, unknown>;      // task, wake reason, etc.
+  agent: {
+    id: string;
+    companyId: string;
+    name: string;
+    adapterConfig: unknown;
+  };
+  runtime: {
+    sessionId: string | null;
+    sessionParams: Record<string, unknown> | null;
+  };
+  config: Record<string, unknown>; // agent's adapterConfig
+  context: Record<string, unknown>; // task, wake reason, etc.
   onLog: (stream: "stdout" | "stderr", chunk: string) => Promise<void>;
   onMeta?: (meta: AdapterInvocationMeta) => Promise<void>;
   onSpawn?: (meta: { pid: number; startedAt: string }) => Promise<void>;
@@ -116,12 +122,12 @@ interface AdapterExecutionResult {
   timedOut: boolean;
   errorMessage?: string | null;
   usage?: { inputTokens: number; outputTokens: number };
-  sessionParams?: Record<string, unknown> | null;  // persist across heartbeats
+  sessionParams?: Record<string, unknown> | null; // persist across heartbeats
   sessionDisplayId?: string | null;
   provider?: string | null;
   model?: string | null;
   costUsd?: number | null;
-  clearSession?: boolean;  // set true to force fresh session on next wake
+  clearSession?: boolean; // set true to force fresh session on next wake
 }
 ```
 
@@ -131,11 +137,11 @@ interface AdapterExecutionResult {
 
 Return structured diagnostics:
 
-| Level | Meaning | Effect |
-|-------|---------|--------|
-| `error` | Invalid or unusable setup | Blocks execution |
-| `warn` | Non-blocking issue | Shown with yellow indicator |
-| `info` | Successful check | Shown in test results |
+| Level   | Meaning                   | Effect                      |
+| ------- | ------------------------- | --------------------------- |
+| `error` | Invalid or unusable setup | Blocks execution            |
+| `warn`  | Non-blocking issue        | Shown with yellow indicator |
+| `info`  | Successful check          | Shown in test results       |
 
 ```ts
 export async function testEnvironment(
@@ -143,10 +149,15 @@ export async function testEnvironment(
 ): Promise<AdapterEnvironmentTestResult> {
   return {
     adapterType: ctx.adapterType,
-    status: "pass",  // "pass" | "warn" | "fail"
+    status: "pass", // "pass" | "warn" | "fail"
     checks: [
       { level: "info", message: "CLI v1.2.0 detected", code: "cli_detected" },
-      { level: "warn", message: "No API key found", hint: "Set ANTHROPIC_API_KEY", code: "no_key" },
+      {
+        level: "warn",
+        message: "No API key found",
+        hint: "Set ANTHROPIC_API_KEY",
+        code: "no_key",
+      },
     ],
     testedAt: new Date().toISOString(),
   };
@@ -197,9 +208,15 @@ If your agent runtime supports conversation continuity across heartbeats:
 
 ```ts
 export const sessionCodec: AdapterSessionCodec = {
-  deserialize(raw) { /* validate raw session data */ },
-  serialize(params) { /* serialize for storage */ },
-  getDisplayId(params) { /* human-readable session label */ },
+  deserialize(raw) {
+    /* validate raw session data */
+  },
+  serialize(params) {
+    /* serialize for storage */
+  },
+  getDisplayId(params) {
+    /* human-readable session label */
+  },
 };
 ```
 

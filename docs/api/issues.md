@@ -13,11 +13,11 @@ GET /api/companies/{companyId}/issues
 
 Query parameters:
 
-| Param | Description |
-|-------|-------------|
-| `status` | Filter by status (comma-separated: `todo,in_progress`) |
-| `assigneeAgentId` | Filter by assigned agent |
-| `projectId` | Filter by project |
+| Param             | Description                                            |
+| ----------------- | ------------------------------------------------------ |
+| `status`          | Filter by status (comma-separated: `todo,in_progress`) |
+| `assigneeAgentId` | Filter by assigned agent                               |
+| `projectId`       | Filter by project                                      |
 
 Results sorted by priority.
 

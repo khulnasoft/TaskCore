@@ -7,13 +7,13 @@ Taskcore supports external adapter plugins that can be installed from npm packag
 
 ## Built-in vs External
 
-| | Built-in | External |
-|---|---|---|
-| Source location | Inside `taskcore-fork/packages/adapters/` | Separate npm package or local directory |
-| Registration | Hardcoded in three registries | Loaded at startup via plugin system |
-| UI parser | Static import at build time | Dynamically loaded from API (see [UI Parser](/adapters/adapter-ui-parser)) |
-| Distribution | Ships with Taskcore | Published to npm or linked via `file:` |
-| Updates | Requires Taskcore release | Independent versioning |
+|                 | Built-in                                  | External                                                                   |
+| --------------- | ----------------------------------------- | -------------------------------------------------------------------------- |
+| Source location | Inside `taskcore-fork/packages/adapters/` | Separate npm package or local directory                                    |
+| Registration    | Hardcoded in three registries             | Loaded at startup via plugin system                                        |
+| UI parser       | Static import at build time               | Dynamically loaded from API (see [UI Parser](/adapters/adapter-ui-parser)) |
+| Distribution    | Ships with Taskcore                       | Published to npm or linked via `file:`                                     |
+| Updates         | Requires Taskcore release                 | Independent versioning                                                     |
 
 ## Quick Start
 
@@ -66,12 +66,12 @@ my-adapter/
 
 Key fields:
 
-| Field | Purpose |
-|-------|---------|
-| `exports["."]` | Entry point — must export `createServerAdapter` |
-| `exports["./ui-parser"]` | Self-contained UI parser module (optional but recommended) |
-| `taskcore.adapterUiParser` | Contract version for the UI parser (`"1.0.0"`) |
-| `files` | Limits what gets published — only `dist/` |
+| Field                      | Purpose                                                    |
+| -------------------------- | ---------------------------------------------------------- |
+| `exports["."]`             | Entry point — must export `createServerAdapter`            |
+| `exports["./ui-parser"]`   | Self-contained UI parser module (optional but recommended) |
+| `taskcore.adapterUiParser` | Contract version for the UI parser (`"1.0.0"`)             |
+| `files`                    | Limits what gets published — only `dist/`                  |
 
 ### tsconfig.json
 
@@ -99,12 +99,10 @@ The plugin loader calls `createServerAdapter()` from your package root. This fun
 ### src/index.ts
 
 ```ts
-export const type = "my_adapter";     // snake_case, globally unique
+export const type = "my_adapter"; // snake_case, globally unique
 export const label = "My Agent (local)";
 
-export const models = [
-  { id: "model-a", label: "Model A" },
-];
+export const models = [{ id: "model-a", label: "Model A" }];
 
 export const agentConfigurationDoc = `# my_adapter configuration
 Use when: ...
@@ -191,19 +189,21 @@ export async function execute(
     exitCode: result.exitCode,
     timedOut: result.timedOut,
     // Include session state for persistence
-    sessionParams: { /* ... */ },
+    sessionParams: {
+      /* ... */
+    },
   };
 }
 ```
 
 #### Available Helpers from `@taskcore/adapter-utils`
 
-| Helper | Purpose |
-|--------|---------|
-| `runChildProcess(command, opts)` | Spawn a child process with timeout, grace period, and streaming callbacks |
-| `buildTaskcoreEnv(agent)` | Inject `TASKCORE_*` environment variables |
-| `renderTemplate(template, data)` | `{{variable}}` substitution in prompt templates |
-| `asString(v)`, `asNumber(v)`, `asBoolean(v)` | Safe config value extraction |
+| Helper                                       | Purpose                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| `runChildProcess(command, opts)`             | Spawn a child process with timeout, grace period, and streaming callbacks |
+| `buildTaskcoreEnv(agent)`                    | Inject `TASKCORE_*` environment variables                                 |
+| `renderTemplate(template, data)`             | `{{variable}}` substitution in prompt templates                           |
+| `asString(v)`, `asNumber(v)`, `asBoolean(v)` | Safe config value extraction                                              |
 
 ### src/server/test.ts
 
@@ -240,7 +240,7 @@ export async function testEnvironment(
 
   return {
     adapterType: ctx.adapterType,
-    status: checks.some(c => c.level === "error") ? "fail" : "pass",
+    status: checks.some((c) => c.level === "error") ? "fail" : "pass",
     checks,
     testedAt: new Date().toISOString(),
   };
@@ -249,11 +249,11 @@ export async function testEnvironment(
 
 Check levels:
 
-| Level | Meaning | Effect |
-|-------|---------|--------|
-| `info` | Informational | Shown in test results |
-| `warn` | Non-blocking issue | Shown with yellow indicator |
-| `error` | Blocks execution | Prevents agent from running |
+| Level   | Meaning            | Effect                      |
+| ------- | ------------------ | --------------------------- |
+| `info`  | Informational      | Shown in test results       |
+| `warn`  | Non-blocking issue | Shown with yellow indicator |
+| `error` | Blocks execution   | Prevents agent from running |
 
 ## Installation
 
@@ -321,7 +321,7 @@ export const sessionCodec: AdapterSessionCodec = {
 Include it in `createServerAdapter()`:
 
 ```ts
-return { type, execute, testEnvironment, sessionCodec, /* ... */ };
+return { type, execute, testEnvironment, sessionCodec /* ... */ };
 ```
 
 ## Optional: Skills Sync
@@ -345,7 +345,9 @@ return {
   },
   async syncSkills(ctx, desiredSkills) {
     // Install desired skills into the runtime
-    return { /* same shape as listSkills */ };
+    return {
+      /* same shape as listSkills */
+    };
   },
 };
 ```
