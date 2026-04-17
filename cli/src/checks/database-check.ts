@@ -3,7 +3,10 @@ import type { TaskcoreConfig } from "../config/schema.js";
 import type { CheckResult } from "./index.js";
 import { resolveRuntimeLikePath } from "./path-resolver.js";
 
-export async function databaseCheck(config: TaskcoreConfig, configPath?: string): Promise<CheckResult> {
+export async function databaseCheck(
+  config: TaskcoreConfig,
+  configPath?: string,
+): Promise<CheckResult> {
   if (config.database.mode === "postgres") {
     if (!config.database.connectionString) {
       return {
@@ -30,13 +33,17 @@ export async function databaseCheck(config: TaskcoreConfig, configPath?: string)
         status: "fail",
         message: `Cannot connect to PostgreSQL: ${err instanceof Error ? err.message : String(err)}`,
         canRepair: false,
-        repairHint: "Check your connection string and ensure PostgreSQL is running",
+        repairHint:
+          "Check your connection string and ensure PostgreSQL is running",
       };
     }
   }
 
   if (config.database.mode === "embedded-postgres") {
-    const dataDir = resolveRuntimeLikePath(config.database.embeddedPostgresDataDir, configPath);
+    const dataDir = resolveRuntimeLikePath(
+      config.database.embeddedPostgresDataDir,
+      configPath,
+    );
     const reportedPath = dataDir;
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(reportedPath, { recursive: true });

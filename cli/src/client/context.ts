@@ -22,7 +22,11 @@ function findContextFileFromAncestors(startDir: string): string | null {
   let currentDir = absoluteStartDir;
 
   while (true) {
-    const candidate = path.resolve(currentDir, ".taskcore", DEFAULT_CONTEXT_BASENAME);
+    const candidate = path.resolve(
+      currentDir,
+      ".taskcore",
+      DEFAULT_CONTEXT_BASENAME,
+    );
     if (fs.existsSync(candidate)) {
       return candidate;
     }
@@ -37,8 +41,11 @@ function findContextFileFromAncestors(startDir: string): string | null {
 
 export function resolveContextPath(overridePath?: string): string {
   if (overridePath) return path.resolve(overridePath);
-  if (process.env.TASKCORE_CONTEXT) return path.resolve(process.env.TASKCORE_CONTEXT);
-  return findContextFileFromAncestors(process.cwd()) ?? resolveDefaultContextPath();
+  if (process.env.TASKCORE_CONTEXT)
+    return path.resolve(process.env.TASKCORE_CONTEXT);
+  return (
+    findContextFileFromAncestors(process.cwd()) ?? resolveDefaultContextPath()
+  );
 }
 
 export function defaultClientContext(): ClientContext {
@@ -55,16 +62,21 @@ function parseJson(filePath: string): unknown {
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf-8"));
   } catch (err) {
-    throw new Error(`Failed to parse JSON at ${filePath}: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Failed to parse JSON at ${filePath}: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
 function toStringOrUndefined(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
 }
 
 function normalizeProfile(value: unknown): ClientContextProfile {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    return {};
   const profile = value as Record<string, unknown>;
 
   return {
@@ -81,13 +93,20 @@ function normalizeContext(raw: unknown): ClientContext {
 
   const record = raw as Record<string, unknown>;
   const version = record.version === 1 ? 1 : 1;
-  const currentProfile = toStringOrUndefined(record.currentProfile) ?? DEFAULT_PROFILE;
+  const currentProfile =
+    toStringOrUndefined(record.currentProfile) ?? DEFAULT_PROFILE;
 
   const rawProfiles = record.profiles;
   const profiles: Record<string, ClientContextProfile> = {};
 
-  if (typeof rawProfiles === "object" && rawProfiles !== null && !Array.isArray(rawProfiles)) {
-    for (const [name, profile] of Object.entries(rawProfiles as Record<string, unknown>)) {
+  if (
+    typeof rawProfiles === "object" &&
+    rawProfiles !== null &&
+    !Array.isArray(rawProfiles)
+  ) {
+    for (const [name, profile] of Object.entries(
+      rawProfiles as Record<string, unknown>,
+    )) {
       if (!name.trim()) continue;
       profiles[name] = normalizeProfile(profile);
     }
@@ -118,13 +137,18 @@ export function readContext(contextPath?: string): ClientContext {
   return normalizeContext(raw);
 }
 
-export function writeContext(context: ClientContext, contextPath?: string): void {
+export function writeContext(
+  context: ClientContext,
+  contextPath?: string,
+): void {
   const filePath = resolveContextPath(contextPath);
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
 
   const normalized = normalizeContext(context);
-  fs.writeFileSync(filePath, `${JSON.stringify(normalized, null, 2)}\n`, { mode: 0o600 });
+  fs.writeFileSync(filePath, `${JSON.stringify(normalized, null, 2)}\n`, {
+    mode: 0o600,
+  });
 }
 
 export function upsertProfile(
@@ -145,7 +169,10 @@ export function upsertProfile(
   if (patch.companyId !== undefined && patch.companyId.trim().length === 0) {
     delete merged.companyId;
   }
-  if (patch.apiKeyEnvVarName !== undefined && patch.apiKeyEnvVarName.trim().length === 0) {
+  if (
+    patch.apiKeyEnvVarName !== undefined &&
+    patch.apiKeyEnvVarName.trim().length === 0
+  ) {
     delete merged.apiKeyEnvVarName;
   }
 
@@ -155,7 +182,10 @@ export function upsertProfile(
   return context;
 }
 
-export function setCurrentProfile(profileName: string, contextPath?: string): ClientContext {
+export function setCurrentProfile(
+  profileName: string,
+  contextPath?: string,
+): ClientContext {
   const context = readContext(contextPath);
   if (!context.profiles[profileName]) {
     context.profiles[profileName] = {};

@@ -47,13 +47,17 @@ const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 function codexSkillsHome(): string {
   const fromEnv = process.env.CODEX_HOME?.trim();
-  const base = fromEnv && fromEnv.length > 0 ? fromEnv : path.join(os.homedir(), ".codex");
+  const base =
+    fromEnv && fromEnv.length > 0 ? fromEnv : path.join(os.homedir(), ".codex");
   return path.join(base, "skills");
 }
 
 function claudeSkillsHome(): string {
   const fromEnv = process.env.CLAUDE_HOME?.trim();
-  const base = fromEnv && fromEnv.length > 0 ? fromEnv : path.join(os.homedir(), ".claude");
+  const base =
+    fromEnv && fromEnv.length > 0
+      ? fromEnv
+      : path.join(os.homedir(), ".claude");
   return path.join(base, "skills");
 }
 
@@ -167,7 +171,10 @@ export function registerAgentCommands(program: Command): void {
       .action(async (opts: AgentListOptions) => {
         try {
           const ctx = resolveCommandContext(opts, { requireCompany: true });
-          const rows = (await ctx.api.get<Agent[]>(`/api/companies/${ctx.companyId}/agents`)) ?? [];
+          const rows =
+            (await ctx.api.get<Agent[]>(
+              `/api/companies/${ctx.companyId}/agents`,
+            )) ?? [];
 
           if (ctx.json) {
             printOutput(rows, { json: true });
@@ -240,15 +247,22 @@ export function registerAgentCommands(program: Command): void {
           }
 
           const now = new Date().toISOString().replaceAll(":", "-");
-          const keyName = opts.keyName?.trim() ? opts.keyName.trim() : `local-cli-${now}`;
-          const key = await ctx.api.post<CreatedAgentKey>(`/api/agents/${agentRow.id}/keys`, { name: keyName });
+          const keyName = opts.keyName?.trim()
+            ? opts.keyName.trim()
+            : `local-cli-${now}`;
+          const key = await ctx.api.post<CreatedAgentKey>(
+            `/api/agents/${agentRow.id}/keys`,
+            { name: keyName },
+          );
           if (!key) {
             throw new Error("Failed to create API key");
           }
 
           const installSummaries: SkillsInstallSummary[] = [];
           if (opts.installSkills !== false) {
-            const skillsDir = await resolveTaskcoreSkillsDir(__moduleDir, [path.resolve(process.cwd(), "skills")]);
+            const skillsDir = await resolveTaskcoreSkillsDir(__moduleDir, [
+              path.resolve(process.cwd(), "skills"),
+            ]);
             if (!skillsDir) {
               throw new Error(
                 "Could not locate local Taskcore skills directory. Expected ./skills in the repo checkout.",
@@ -256,8 +270,16 @@ export function registerAgentCommands(program: Command): void {
             }
 
             installSummaries.push(
-              await installSkillsForTarget(skillsDir, codexSkillsHome(), "codex"),
-              await installSkillsForTarget(skillsDir, claudeSkillsHome(), "claude"),
+              await installSkillsForTarget(
+                skillsDir,
+                codexSkillsHome(),
+                "codex",
+              ),
+              await installSkillsForTarget(
+                skillsDir,
+                claudeSkillsHome(),
+                "claude",
+              ),
             );
           }
 
@@ -304,7 +326,9 @@ export function registerAgentCommands(program: Command): void {
             }
           }
           console.log("");
-          console.log("# Run this in your shell before launching codex/claude:");
+          console.log(
+            "# Run this in your shell before launching codex/claude:",
+          );
           console.log(exportsText);
         } catch (err) {
           handleCommandError(err);

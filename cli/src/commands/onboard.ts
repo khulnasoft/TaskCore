@@ -17,7 +17,12 @@ import {
   type SecretProvider,
   type StorageProvider,
 } from "@taskcore/shared";
-import { configExists, readConfig, resolveConfigPath, writeConfig } from "../config/store.js";
+import {
+  configExists,
+  readConfig,
+  resolveConfigPath,
+  writeConfig,
+} from "../config/store.js";
 import type { TaskcoreConfig } from "../config/schema.js";
 import { ensureAgentJwtSecret, resolveAgentJwtEnvFile } from "../config/env.js";
 import { ensureLocalSecretsKeyFile } from "../config/secrets-key.js";
@@ -54,7 +59,10 @@ type OnboardOptions = {
   bind?: BindMode;
 };
 
-type OnboardDefaults = Pick<TaskcoreConfig, "database" | "logging" | "server" | "auth" | "storage" | "secrets">;
+type OnboardDefaults = Pick<
+  TaskcoreConfig,
+  "database" | "logging" | "server" | "auth" | "storage" | "secrets"
+>;
 
 const TAILNET_BIND_WARNING =
   "No Tailscale address was detected during setup. The saved config will stay on loopback until Tailscale is available or TASKCORE_TAILNET_BIND_HOST is set.";
@@ -106,7 +114,10 @@ function parseNumberFromEnv(rawValue: string | undefined): number | null {
   return parsed;
 }
 
-function parseEnumFromEnv<T extends string>(rawValue: string | undefined, allowedValues: readonly T[]): T | null {
+function parseEnumFromEnv<T extends string>(
+  rawValue: string | undefined,
+  allowedValues: readonly T[],
+): T | null {
   if (!rawValue) return null;
   return allowedValues.includes(rawValue as T) ? (rawValue as T) : null;
 }
@@ -116,11 +127,16 @@ function resolvePathFromEnv(rawValue: string | undefined): string | null {
   return path.resolve(expandHomePrefix(rawValue.trim()));
 }
 
-function describeServerBinding(server: Pick<TaskcoreConfig["server"], "bind" | "customBindHost" | "host" | "port">): string {
+function describeServerBinding(
+  server: Pick<
+    TaskcoreConfig["server"],
+    "bind" | "customBindHost" | "host" | "port"
+  >,
+): string {
   const bind = server.bind ?? inferBindModeFromHost(server.host);
   const detail =
     bind === "custom"
-      ? server.customBindHost ?? server.host
+      ? (server.customBindHost ?? server.host)
       : bind === "tailnet"
         ? "detected tailscale address"
         : server.host;
@@ -139,33 +155,41 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
   const databaseUrl = process.env.DATABASE_URL?.trim() || undefined;
   const publicUrl = preferTrustedLocal
     ? undefined
-    : (
-      process.env.TASKCORE_PUBLIC_URL?.trim() ||
+    : process.env.TASKCORE_PUBLIC_URL?.trim() ||
       process.env.TASKCORE_AUTH_PUBLIC_BASE_URL?.trim() ||
       process.env.BETTER_AUTH_URL?.trim() ||
       process.env.BETTER_AUTH_BASE_URL?.trim() ||
-      undefined
-    );
+      undefined;
   const deploymentMode = preferTrustedLocal
     ? "local_trusted"
-    : (parseEnumFromEnv<DeploymentMode>(process.env.TASKCORE_DEPLOYMENT_MODE, DEPLOYMENT_MODES) ?? "local_trusted");
+    : (parseEnumFromEnv<DeploymentMode>(
+        process.env.TASKCORE_DEPLOYMENT_MODE,
+        DEPLOYMENT_MODES,
+      ) ?? "local_trusted");
   const deploymentExposureFromEnv = parseEnumFromEnv<DeploymentExposure>(
     process.env.TASKCORE_DEPLOYMENT_EXPOSURE,
     DEPLOYMENT_EXPOSURES,
   );
   const deploymentExposure =
-    deploymentMode === "local_trusted" ? "private" : (deploymentExposureFromEnv ?? "private");
-  const bindFromEnv = parseEnumFromEnv<BindMode>(process.env.TASKCORE_BIND, BIND_MODES);
-  const customBindHostFromEnv = process.env.TASKCORE_BIND_HOST?.trim() || undefined;
+    deploymentMode === "local_trusted"
+      ? "private"
+      : (deploymentExposureFromEnv ?? "private");
+  const bindFromEnv = parseEnumFromEnv<BindMode>(
+    process.env.TASKCORE_BIND,
+    BIND_MODES,
+  );
+  const customBindHostFromEnv =
+    process.env.TASKCORE_BIND_HOST?.trim() || undefined;
   const hostFromEnv = process.env.HOST?.trim() || undefined;
   const configuredBindHost = customBindHostFromEnv ?? hostFromEnv;
   const bind = preferTrustedLocal
     ? "loopback"
-    : (
-      deploymentMode === "local_trusted"
-        ? "loopback"
-        : (bindFromEnv ?? (configuredBindHost ? inferBindModeFromHost(configuredBindHost) : "lan"))
-    );
+    : deploymentMode === "local_trusted"
+      ? "loopback"
+      : (bindFromEnv ??
+        (configuredBindHost
+          ? inferBindModeFromHost(configuredBindHost)
+          : "lan"));
   const resolvedBind = resolveRuntimeBind({
     bind,
     host: hostFromEnv ?? (bind === "loopback" ? "127.0.0.1" : "0.0.0.0"),
@@ -177,29 +201,34 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
     process.env.TASKCORE_AUTH_BASE_URL_MODE,
     AUTH_BASE_URL_MODES,
   );
-  const authBaseUrlMode = authBaseUrlModeFromEnv ?? (authPublicBaseUrl ? "explicit" : "auto");
+  const authBaseUrlMode =
+    authBaseUrlModeFromEnv ?? (authPublicBaseUrl ? "explicit" : "auto");
   const allowedHostnamesFromEnv = process.env.TASKCORE_ALLOWED_HOSTNAMES
-    ? process.env.TASKCORE_ALLOWED_HOSTNAMES
-      .split(",")
-      .map((value) => value.trim().toLowerCase())
-      .filter((value) => value.length > 0)
+    ? process.env.TASKCORE_ALLOWED_HOSTNAMES.split(",")
+        .map((value) => value.trim().toLowerCase())
+        .filter((value) => value.length > 0)
     : [];
   const hostnameFromPublicUrl = publicUrl
     ? (() => {
-      try {
-        return new URL(publicUrl).hostname.trim().toLowerCase();
-      } catch {
-        return null;
-      }
-    })()
+        try {
+          return new URL(publicUrl).hostname.trim().toLowerCase();
+        } catch {
+          return null;
+        }
+      })()
     : null;
   const storageProvider =
-    parseEnumFromEnv<StorageProvider>(process.env.TASKCORE_STORAGE_PROVIDER, STORAGE_PROVIDERS) ??
-    defaultStorage.provider;
+    parseEnumFromEnv<StorageProvider>(
+      process.env.TASKCORE_STORAGE_PROVIDER,
+      STORAGE_PROVIDERS,
+    ) ?? defaultStorage.provider;
   const secretsProvider =
-    parseEnumFromEnv<SecretProvider>(process.env.TASKCORE_SECRETS_PROVIDER, SECRET_PROVIDERS) ??
-    defaultSecrets.provider;
-  const databaseBackupEnabled = parseBooleanFromEnv(process.env.TASKCORE_DB_BACKUP_ENABLED) ?? true;
+    parseEnumFromEnv<SecretProvider>(
+      process.env.TASKCORE_SECRETS_PROVIDER,
+      SECRET_PROVIDERS,
+    ) ?? defaultSecrets.provider;
+  const databaseBackupEnabled =
+    parseBooleanFromEnv(process.env.TASKCORE_DB_BACKUP_ENABLED) ?? true;
   const databaseBackupIntervalMinutes = Math.max(
     1,
     parseNumberFromEnv(process.env.TASKCORE_DB_BACKUP_INTERVAL_MINUTES) ?? 60,
@@ -218,7 +247,9 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
         enabled: databaseBackupEnabled,
         intervalMinutes: databaseBackupIntervalMinutes,
         retentionDays: databaseBackupRetentionDays,
-        dir: resolvePathFromEnv(process.env.TASKCORE_DB_BACKUP_DIR) ?? resolveDefaultBackupDir(instanceId),
+        dir:
+          resolvePathFromEnv(process.env.TASKCORE_DB_BACKUP_DIR) ??
+          resolveDefaultBackupDir(instanceId),
       },
     },
     logging: {
@@ -229,10 +260,17 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
       deploymentMode,
       exposure: deploymentExposure,
       bind: resolvedBind.bind,
-      ...(resolvedBind.customBindHost ? { customBindHost: resolvedBind.customBindHost } : {}),
+      ...(resolvedBind.customBindHost
+        ? { customBindHost: resolvedBind.customBindHost }
+        : {}),
       host: resolvedBind.host,
       port: Number(process.env.PORT) || 3100,
-      allowedHostnames: Array.from(new Set([...allowedHostnamesFromEnv, ...(hostnameFromPublicUrl ? [hostnameFromPublicUrl] : [])])),
+      allowedHostnames: Array.from(
+        new Set([
+          ...allowedHostnamesFromEnv,
+          ...(hostnameFromPublicUrl ? [hostnameFromPublicUrl] : []),
+        ]),
+      ),
       serveUi: parseBooleanFromEnv(process.env.SERVE_UI) ?? true,
     },
     auth: {
@@ -244,21 +282,30 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
       provider: storageProvider,
       localDisk: {
         baseDir:
-          resolvePathFromEnv(process.env.TASKCORE_STORAGE_LOCAL_DIR) ?? defaultStorage.localDisk.baseDir,
+          resolvePathFromEnv(process.env.TASKCORE_STORAGE_LOCAL_DIR) ??
+          defaultStorage.localDisk.baseDir,
       },
       s3: {
-        bucket: process.env.TASKCORE_STORAGE_S3_BUCKET ?? defaultStorage.s3.bucket,
-        region: process.env.TASKCORE_STORAGE_S3_REGION ?? defaultStorage.s3.region,
-        endpoint: process.env.TASKCORE_STORAGE_S3_ENDPOINT ?? defaultStorage.s3.endpoint,
-        prefix: process.env.TASKCORE_STORAGE_S3_PREFIX ?? defaultStorage.s3.prefix,
+        bucket:
+          process.env.TASKCORE_STORAGE_S3_BUCKET ?? defaultStorage.s3.bucket,
+        region:
+          process.env.TASKCORE_STORAGE_S3_REGION ?? defaultStorage.s3.region,
+        endpoint:
+          process.env.TASKCORE_STORAGE_S3_ENDPOINT ??
+          defaultStorage.s3.endpoint,
+        prefix:
+          process.env.TASKCORE_STORAGE_S3_PREFIX ?? defaultStorage.s3.prefix,
         forcePathStyle:
-          parseBooleanFromEnv(process.env.TASKCORE_STORAGE_S3_FORCE_PATH_STYLE) ??
-          defaultStorage.s3.forcePathStyle,
+          parseBooleanFromEnv(
+            process.env.TASKCORE_STORAGE_S3_FORCE_PATH_STYLE,
+          ) ?? defaultStorage.s3.forcePathStyle,
       },
     },
     secrets: {
       provider: secretsProvider,
-      strictMode: parseBooleanFromEnv(process.env.TASKCORE_SECRETS_STRICT_MODE) ?? defaultSecrets.strictMode,
+      strictMode:
+        parseBooleanFromEnv(process.env.TASKCORE_SECRETS_STRICT_MODE) ??
+        defaultSecrets.strictMode,
       localEncrypted: {
         keyFilePath:
           resolvePathFromEnv(process.env.TASKCORE_SECRETS_MASTER_KEY_FILE) ??
@@ -268,7 +315,8 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
   };
   const ignoredEnvKeys: Array<{ key: string; reason: string }> = [];
   if (preferTrustedLocal) {
-    const forcedLocalReason = "Ignored because --yes quickstart forces trusted local loopback defaults";
+    const forcedLocalReason =
+      "Ignored because --yes quickstart forces trusted local loopback defaults";
     for (const key of [
       "TASKCORE_DEPLOYMENT_MODE",
       "TASKCORE_DEPLOYMENT_EXPOSURE",
@@ -286,28 +334,41 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
       }
     }
   }
-  if (deploymentMode === "local_trusted" && process.env.TASKCORE_DEPLOYMENT_EXPOSURE !== undefined) {
+  if (
+    deploymentMode === "local_trusted" &&
+    process.env.TASKCORE_DEPLOYMENT_EXPOSURE !== undefined
+  ) {
     ignoredEnvKeys.push({
       key: "TASKCORE_DEPLOYMENT_EXPOSURE",
-      reason: "Ignored because deployment mode local_trusted always forces private exposure",
+      reason:
+        "Ignored because deployment mode local_trusted always forces private exposure",
     });
   }
-  if (deploymentMode === "local_trusted" && process.env.TASKCORE_BIND !== undefined) {
+  if (
+    deploymentMode === "local_trusted" &&
+    process.env.TASKCORE_BIND !== undefined
+  ) {
     ignoredEnvKeys.push({
       key: "TASKCORE_BIND",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
+      reason:
+        "Ignored because deployment mode local_trusted always uses loopback reachability",
     });
   }
-  if (deploymentMode === "local_trusted" && process.env.TASKCORE_BIND_HOST !== undefined) {
+  if (
+    deploymentMode === "local_trusted" &&
+    process.env.TASKCORE_BIND_HOST !== undefined
+  ) {
     ignoredEnvKeys.push({
       key: "TASKCORE_BIND_HOST",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
+      reason:
+        "Ignored because deployment mode local_trusted always uses loopback reachability",
     });
   }
   if (deploymentMode === "local_trusted" && process.env.HOST !== undefined) {
     ignoredEnvKeys.push({
       key: "HOST",
-      reason: "Ignored because deployment mode local_trusted always uses loopback reachability",
+      reason:
+        "Ignored because deployment mode local_trusted always uses loopback reachability",
     });
   }
 
@@ -318,13 +379,20 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
   return { defaults, usedEnvKeys, ignoredEnvKeys };
 }
 
-function canCreateBootstrapInviteImmediately(config: Pick<TaskcoreConfig, "database" | "server">): boolean {
-  return config.server.deploymentMode === "authenticated" && config.database.mode !== "embedded-postgres";
+function canCreateBootstrapInviteImmediately(
+  config: Pick<TaskcoreConfig, "database" | "server">,
+): boolean {
+  return (
+    config.server.deploymentMode === "authenticated" &&
+    config.database.mode !== "embedded-postgres"
+  );
 }
 
 export async function onboard(opts: OnboardOptions): Promise<void> {
   if (opts.bind && !["loopback", "lan", "tailnet"].includes(opts.bind)) {
-    throw new Error(`Unsupported bind preset for onboard: ${opts.bind}. Use loopback, lan, or tailnet.`);
+    throw new Error(
+      `Unsupported bind preset for onboard: ${opts.bind}. Use loopback, lan, or tailnet.`,
+    );
   }
 
   printTaskcoreCliBanner();
@@ -354,32 +422,50 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
 
   if (existingConfig) {
     p.log.message(
-      pc.dim("Existing Taskcore install detected; keeping the current configuration unchanged."),
+      pc.dim(
+        "Existing Taskcore install detected; keeping the current configuration unchanged.",
+      ),
     );
-    p.log.message(pc.dim(`Use ${pc.cyan("taskcore configure")} if you want to change settings.`));
+    p.log.message(
+      pc.dim(
+        `Use ${pc.cyan("taskcore configure")} if you want to change settings.`,
+      ),
+    );
 
     const jwtSecret = ensureAgentJwtSecret(configPath);
     const envFilePath = resolveAgentJwtEnvFile(configPath);
     if (jwtSecret.created) {
-      p.log.success(`Created ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`);
+      p.log.success(
+        `Created ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`,
+      );
     } else if (process.env.TASKCORE_AGENT_JWT_SECRET?.trim()) {
-      p.log.info(`Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} from environment`);
+      p.log.info(
+        `Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} from environment`,
+      );
     } else {
-      p.log.info(`Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`);
+      p.log.info(
+        `Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`,
+      );
     }
 
     const keyResult = ensureLocalSecretsKeyFile(existingConfig, configPath);
     if (keyResult.status === "created") {
-      p.log.success(`Created local secrets key file at ${pc.dim(keyResult.path)}`);
+      p.log.success(
+        `Created local secrets key file at ${pc.dim(keyResult.path)}`,
+      );
     } else if (keyResult.status === "existing") {
-      p.log.message(pc.dim(`Using existing local secrets key file at ${keyResult.path}`));
+      p.log.message(
+        pc.dim(`Using existing local secrets key file at ${keyResult.path}`),
+      );
     }
 
     p.note(
       [
         "Existing config preserved",
         `Database: ${existingConfig.database.mode}`,
-        existingConfig.llm ? `LLM: ${existingConfig.llm.provider}` : "LLM: not configured",
+        existingConfig.llm
+          ? `LLM: ${existingConfig.llm.provider}`
+          : "LLM: not configured",
         `Logging: ${existingConfig.logging.mode} -> ${existingConfig.logging.logDir}`,
         `Server: ${existingConfig.server.deploymentMode}/${existingConfig.server.exposure} @ ${describeServerBinding(existingConfig.server)}`,
         `Allowed hosts: ${existingConfig.server.allowedHostnames.length > 0 ? existingConfig.server.allowedHostnames.join(", ") : "(loopback only)"}`,
@@ -401,7 +487,12 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     );
 
     let shouldRunNow = opts.run === true || opts.yes === true;
-    if (!shouldRunNow && !opts.invokedByRun && process.stdin.isTTY && process.stdout.isTTY) {
+    if (
+      !shouldRunNow &&
+      !opts.invokedByRun &&
+      process.stdin.isTTY &&
+      process.stdout.isTTY
+    ) {
       const answer = await p.confirm({
         message: "Start Taskcore now?",
         initialValue: true,
@@ -459,19 +550,20 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
   if (tc) trackInstallStarted(tc);
 
   let llm: TaskcoreConfig["llm"] | undefined;
-  const { defaults: derivedDefaults, usedEnvKeys, ignoredEnvKeys } = quickstartDefaultsFromEnv({
+  const {
+    defaults: derivedDefaults,
+    usedEnvKeys,
+    ignoredEnvKeys,
+  } = quickstartDefaultsFromEnv({
     preferTrustedLocal: opts.yes === true && !opts.bind,
   });
-  let {
-    database,
-    logging,
-    server,
-    auth,
-    storage,
-    secrets,
-  } = derivedDefaults;
+  let { database, logging, server, auth, storage, secrets } = derivedDefaults;
 
-  if (opts.bind === "loopback" || opts.bind === "lan" || opts.bind === "tailnet") {
+  if (
+    opts.bind === "loopback" ||
+    opts.bind === "lan" ||
+    opts.bind === "tailnet"
+  ) {
     const preset = buildPresetServerConfig(opts.bind, {
       port: server.port,
       allowedHostnames: server.allowedHostnames,
@@ -497,7 +589,11 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
         await db.execute("SELECT 1");
         s.stop("Database connection successful");
       } catch {
-        s.stop(pc.yellow("Could not connect to database — you can fix this later with `taskcore doctor`"));
+        s.stop(
+          pc.yellow(
+            "Could not connect to database — you can fix this later with `taskcore doctor`",
+          ),
+        );
       }
     }
 
@@ -525,7 +621,9 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
           if (res.ok || res.status === 400) {
             s.stop("API key is valid");
           } else if (res.status === 401) {
-            s.stop(pc.yellow("API key appears invalid — you can update it later"));
+            s.stop(
+              pc.yellow("API key appears invalid — you can update it later"),
+            );
           } else {
             s.stop(pc.yellow("Could not validate API key — continuing anyway"));
           }
@@ -536,7 +634,9 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
           if (res.ok) {
             s.stop("API key is valid");
           } else if (res.status === 401) {
-            s.stop(pc.yellow("API key appears invalid — you can update it later"));
+            s.stop(
+              pc.yellow("API key appears invalid — you can update it later"),
+            );
           } else {
             s.stop(pc.yellow("Could not validate API key — continuing anyway"));
           }
@@ -550,7 +650,10 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     logging = await promptLogging();
 
     p.log.step(pc.bold("Server"));
-    ({ server, auth } = await promptServer({ currentServer: server, currentAuth: auth }));
+    ({ server, auth } = await promptServer({
+      currentServer: server,
+      currentAuth: auth,
+    }));
 
     p.log.step(pc.bold("Storage"));
     storage = await promptStorage(storage);
@@ -561,7 +664,9 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
       provider: secrets.provider ?? secretsDefaults.provider,
       strictMode: secrets.strictMode ?? secretsDefaults.strictMode,
       localEncrypted: {
-        keyFilePath: secrets.localEncrypted?.keyFilePath ?? secretsDefaults.localEncrypted.keyFilePath,
+        keyFilePath:
+          secrets.localEncrypted?.keyFilePath ??
+          secretsDefaults.localEncrypted.keyFilePath,
       },
     };
     p.log.message(
@@ -579,10 +684,16 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
       ),
     );
     if (usedEnvKeys.length > 0) {
-      p.log.message(pc.dim(`Environment-aware defaults active (${usedEnvKeys.length} env var(s) detected).`));
+      p.log.message(
+        pc.dim(
+          `Environment-aware defaults active (${usedEnvKeys.length} env var(s) detected).`,
+        ),
+      );
     } else {
       p.log.message(
-        pc.dim("No environment overrides detected: embedded database, file storage, local encrypted secrets."),
+        pc.dim(
+          "No environment overrides detected: embedded database, file storage, local encrypted secrets.",
+        ),
       );
     }
     for (const ignored of ignoredEnvKeys) {
@@ -593,11 +704,17 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
   const jwtSecret = ensureAgentJwtSecret(configPath);
   const envFilePath = resolveAgentJwtEnvFile(configPath);
   if (jwtSecret.created) {
-    p.log.success(`Created ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`);
+    p.log.success(
+      `Created ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`,
+    );
   } else if (process.env.TASKCORE_AGENT_JWT_SECRET?.trim()) {
-    p.log.info(`Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} from environment`);
+    p.log.info(
+      `Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} from environment`,
+    );
   } else {
-    p.log.info(`Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`);
+    p.log.info(
+      `Using existing ${pc.cyan("TASKCORE_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`,
+    );
   }
 
   const config: TaskcoreConfig = {
@@ -620,16 +737,21 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
 
   const keyResult = ensureLocalSecretsKeyFile(config, configPath);
   if (keyResult.status === "created") {
-    p.log.success(`Created local secrets key file at ${pc.dim(keyResult.path)}`);
+    p.log.success(
+      `Created local secrets key file at ${pc.dim(keyResult.path)}`,
+    );
   } else if (keyResult.status === "existing") {
-    p.log.message(pc.dim(`Using existing local secrets key file at ${keyResult.path}`));
+    p.log.message(
+      pc.dim(`Using existing local secrets key file at ${keyResult.path}`),
+    );
   }
 
   writeConfig(config, opts.config);
 
-  if (tc) trackInstallCompleted(tc, {
-    adapterType: server.deploymentMode,
-  });
+  if (tc)
+    trackInstallCompleted(tc, {
+      adapterType: server.deploymentMode,
+    });
 
   p.note(
     [
@@ -661,7 +783,12 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
   }
 
   let shouldRunNow = opts.run === true || opts.yes === true;
-  if (!shouldRunNow && !opts.invokedByRun && process.stdin.isTTY && process.stdout.isTTY) {
+  if (
+    !shouldRunNow &&
+    !opts.invokedByRun &&
+    process.stdin.isTTY &&
+    process.stdout.isTTY
+  ) {
     const answer = await p.confirm({
       message: "Start Taskcore now?",
       initialValue: true,
@@ -678,7 +805,10 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     return;
   }
 
-  if (server.deploymentMode === "authenticated" && database.mode === "embedded-postgres") {
+  if (
+    server.deploymentMode === "authenticated" &&
+    database.mode === "embedded-postgres"
+  ) {
     p.log.info(
       [
         "Bootstrap CEO invite will be created after the server starts.",

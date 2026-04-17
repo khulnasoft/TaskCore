@@ -17,7 +17,9 @@ interface ActivityListOptions extends BaseClientOptions {
 }
 
 export function registerActivityCommands(program: Command): void {
-  const activity = program.command("activity").description("Activity log operations");
+  const activity = program
+    .command("activity")
+    .description("Activity log operations");
 
   addCommonClientOptions(
     activity
