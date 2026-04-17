@@ -17,7 +17,10 @@ import { registerActivityCommands } from "./commands/client/activity.js";
 import { registerDashboardCommands } from "./commands/client/dashboard.js";
 import { registerRoutineCommands } from "./commands/routines.js";
 import { registerFeedbackCommands } from "./commands/client/feedback.js";
-import { applyDataDirOverride, type DataDirOptionLike } from "./config/data-dir.js";
+import {
+  applyDataDirOverride,
+  type DataDirOptionLike,
+} from "./config/data-dir.js";
 import { loadTaskcoreEnvFile } from "./config/env.js";
 import { initTelemetryFromConfigFile, flushTelemetry } from "./telemetry.js";
 import { registerWorktreeCommands } from "./commands/worktree.js";
@@ -36,7 +39,9 @@ program
 
 program.hook("preAction", (_thisCommand, actionCommand) => {
   const options = actionCommand.optsWithGlobals() as DataDirOptionLike;
-  const optionNames = new Set(actionCommand.options.map((option) => option.attributeName()));
+  const optionNames = new Set(
+    actionCommand.options.map((option) => option.attributeName()),
+  );
   applyDataDirOverride(options, {
     hasConfigOption: optionNames.has("config"),
     hasContextOption: optionNames.has("context"),
@@ -50,8 +55,15 @@ program
   .description("Interactive first-run setup wizard")
   .option("-c, --config <path>", "Path to config file")
   .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
-  .option("--bind <mode>", "Quickstart reachability preset (loopback, lan, tailnet)")
-  .option("-y, --yes", "Accept quickstart defaults (trusted local loopback unless --bind is set) and start immediately", false)
+  .option(
+    "--bind <mode>",
+    "Quickstart reachability preset (loopback, lan, tailnet)",
+  )
+  .option(
+    "-y, --yes",
+    "Accept quickstart defaults (trusted local loopback unless --bind is set) and start immediately",
+    false,
+  )
   .option("--run", "Start Taskcore immediately after saving config", false)
   .action(onboard);
 
@@ -79,7 +91,10 @@ program
   .description("Update configuration sections")
   .option("-c, --config <path>", "Path to config file")
   .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
-  .option("-s, --section <section>", "Section to configure (llm, database, logging, server, storage, secrets)")
+  .option(
+    "-s, --section <section>",
+    "Section to configure (llm, database, logging, server, storage, secrets)",
+  )
   .action(configure);
 
 program
@@ -88,7 +103,11 @@ program
   .option("-c, --config <path>", "Path to config file")
   .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
   .option("--dir <path>", "Backup output directory (overrides config)")
-  .option("--retention-days <days>", "Retention window used for pruning", (value) => Number(value))
+  .option(
+    "--retention-days <days>",
+    "Retention window used for pruning",
+    (value) => Number(value),
+  )
   .option("--filename-prefix <prefix>", "Backup filename prefix", "taskcore")
   .option("--json", "Print backup metadata as JSON")
   .action(async (opts) => {
@@ -109,12 +128,17 @@ program
   .option("-c, --config <path>", "Path to config file")
   .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
   .option("-i, --instance <id>", "Local instance id (default: default)")
-  .option("--bind <mode>", "On first run, use onboarding reachability preset (loopback, lan, tailnet)")
+  .option(
+    "--bind <mode>",
+    "On first run, use onboarding reachability preset (loopback, lan, tailnet)",
+  )
   .option("--repair", "Attempt automatic repairs during doctor", true)
   .option("--no-repair", "Disable automatic repairs during doctor")
   .action(runCommand);
 
-const heartbeat = program.command("heartbeat").description("Heartbeat utilities");
+const heartbeat = program
+  .command("heartbeat")
+  .description("Heartbeat utilities");
 
 heartbeat
   .command("run")
@@ -131,7 +155,11 @@ heartbeat
     "Invocation source (timer | assignment | on_demand | automation)",
     "on_demand",
   )
-  .option("--trigger <trigger>", "Trigger detail (manual | ping | callback | system)", "manual")
+  .option(
+    "--trigger <trigger>",
+    "Trigger detail (manual | ping | callback | system)",
+    "manual",
+  )
   .option("--timeout-ms <ms>", "Max time to wait before giving up", "0")
   .option("--json", "Output raw JSON where applicable")
   .option("--debug", "Show raw adapter stdout/stderr JSON chunks")
@@ -149,15 +177,23 @@ registerFeedbackCommands(program);
 registerWorktreeCommands(program);
 registerPluginCommands(program);
 
-const auth = program.command("auth").description("Authentication and bootstrap utilities");
+const auth = program
+  .command("auth")
+  .description("Authentication and bootstrap utilities");
 
 auth
   .command("bootstrap-ceo")
-  .description("Create a one-time bootstrap invite URL for first instance admin")
+  .description(
+    "Create a one-time bootstrap invite URL for first instance admin",
+  )
   .option("-c, --config <path>", "Path to config file")
   .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
   .option("--force", "Create new invite even if admin already exists", false)
-  .option("--expires-hours <hours>", "Invite expiration window in hours", (value) => Number(value))
+  .option(
+    "--expires-hours <hours>",
+    "Invite expiration window in hours",
+    (value) => Number(value),
+  )
   .option("--base-url <url>", "Public base URL used to print invite link")
   .action(bootstrapCeoInvite);
 

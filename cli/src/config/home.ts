@@ -11,7 +11,10 @@ export function resolveTaskcoreHomeDir(): string {
 }
 
 export function resolveTaskcoreInstanceId(override?: string): string {
-  const raw = override?.trim() || process.env.TASKCORE_INSTANCE_ID?.trim() || DEFAULT_INSTANCE_ID;
+  const raw =
+    override?.trim() ||
+    process.env.TASKCORE_INSTANCE_ID?.trim() ||
+    DEFAULT_INSTANCE_ID;
   if (!INSTANCE_ID_RE.test(raw)) {
     throw new Error(
       `Invalid instance id '${raw}'. Allowed characters: letters, numbers, '_' and '-'.`,
@@ -46,15 +49,27 @@ export function resolveDefaultLogsDir(instanceId?: string): string {
 }
 
 export function resolveDefaultSecretsKeyFilePath(instanceId?: string): string {
-  return path.resolve(resolveTaskcoreInstanceRoot(instanceId), "secrets", "master.key");
+  return path.resolve(
+    resolveTaskcoreInstanceRoot(instanceId),
+    "secrets",
+    "master.key",
+  );
 }
 
 export function resolveDefaultStorageDir(instanceId?: string): string {
-  return path.resolve(resolveTaskcoreInstanceRoot(instanceId), "data", "storage");
+  return path.resolve(
+    resolveTaskcoreInstanceRoot(instanceId),
+    "data",
+    "storage",
+  );
 }
 
 export function resolveDefaultBackupDir(instanceId?: string): string {
-  return path.resolve(resolveTaskcoreInstanceRoot(instanceId), "data", "backups");
+  return path.resolve(
+    resolveTaskcoreInstanceRoot(instanceId),
+    "data",
+    "backups",
+  );
 }
 
 export function expandHomePrefix(value: string): string {
@@ -71,7 +86,8 @@ export function describeLocalInstancePaths(instanceId?: string) {
     instanceId: resolvedInstanceId,
     instanceRoot,
     configPath: resolveDefaultConfigPath(resolvedInstanceId),
-    embeddedPostgresDataDir: resolveDefaultEmbeddedPostgresDir(resolvedInstanceId),
+    embeddedPostgresDataDir:
+      resolveDefaultEmbeddedPostgresDir(resolvedInstanceId),
     backupDir: resolveDefaultBackupDir(resolvedInstanceId),
     logDir: resolveDefaultLogsDir(resolvedInstanceId),
     secretsKeyFilePath: resolveDefaultSecretsKeyFilePath(resolvedInstanceId),

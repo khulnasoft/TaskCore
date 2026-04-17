@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/khulnasoft/taskcore/master/doc/assets/header.png" alt="Taskcore — runs your business" width="720" />
-</p>
+# TaskCore
 
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
@@ -129,13 +127,13 @@ Monitor and manage your autonomous businesses from anywhere.
 
 ## Problems Taskcore solves
 
-| Without Taskcore                                                                                                                     | With Taskcore                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| ❌ You have 20 Claude Code tabs open and can't track which one does what. On reboot you lose everything.                              | ✅ Tasks are ticket-based, conversations are threaded, sessions persist across reboots.                                                |
-| ❌ You manually gather context from several places to remind your bot what you're actually doing.                                     | ✅ Context flows from the task up through the project and company goals — your agent always knows what to do and why.                  |
+| Without Taskcore                                                                                                                      | With Taskcore                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| ❌ You have 20 Claude Code tabs open and can't track which one does what. On reboot you lose everything.                              | ✅ Tasks are ticket-based, conversations are threaded, sessions persist across reboots.                                               |
+| ❌ You manually gather context from several places to remind your bot what you're actually doing.                                     | ✅ Context flows from the task up through the project and company goals — your agent always knows what to do and why.                 |
 | ❌ Folders of agent configs are disorganized and you're re-inventing task management, communication, and coordination between agents. | ✅ Taskcore gives you org charts, ticketing, delegation, and governance out of the box — so you run a company, not a pile of scripts. |
-| ❌ Runaway loops waste hundreds of dollars of tokens and max your quota before you even know what happened.                           | ✅ Cost tracking surfaces token budgets and throttles agents when they're out. Management prioritizes with budgets.                    |
-| ❌ You have recurring jobs (customer support, social, reports) and have to remember to manually kick them off.                        | ✅ Heartbeats handle regular work on a schedule. Management supervises.                                                                |
+| ❌ Runaway loops waste hundreds of dollars of tokens and max your quota before you even know what happened.                           | ✅ Cost tracking surfaces token budgets and throttles agents when they're out. Management prioritizes with budgets.                   |
+| ❌ You have recurring jobs (customer support, social, reports) and have to remember to manually kick them off.                        | ✅ Heartbeats handle regular work on a schedule. Management supervises.                                                               |
 | ❌ You have an idea, you have to find your repo, fire up Claude Code, keep a tab open, and babysit it.                                | ✅ Add a task in Taskcore. Your coding agent works on it until it's done. Management reviews their work.                              |
 
 <br/>
@@ -148,7 +146,7 @@ Taskcore handles the hard orchestration details correctly.
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | **Atomic execution.**             | Task checkout and budget enforcement are atomic, so no double-work and no runaway spend.                      |
 | **Persistent agent state.**       | Agents resume the same task context across heartbeats instead of restarting from scratch.                     |
-| **Runtime skill injection.**      | Agents can learn Taskcore workflows and project context at runtime, without retraining.                      |
+| **Runtime skill injection.**      | Agents can learn Taskcore workflows and project context at runtime, without retraining.                       |
 | **Governance with rollback.**     | Approval gates are enforced, config changes are revisioned, and bad changes can be rolled back safely.        |
 | **Goal-aware execution.**         | Tasks carry full goal ancestry so agents consistently see the "why," not just a title.                        |
 | **Portable company templates.**   | Export/import orgs, agents, and skills with secret scrubbing and collision handling.                          |
@@ -158,10 +156,10 @@ Taskcore handles the hard orchestration details correctly.
 
 ## What Taskcore is not
 
-|                              |                                                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Not a chatbot.**           | Agents have jobs, not chat windows.                                                                                  |
-| **Not an agent framework.**  | We don't tell you how to build agents. We tell you how to run a company made of them.                                |
+|                              |                                                                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Not a chatbot.**           | Agents have jobs, not chat windows.                                                                                 |
+| **Not an agent framework.**  | We don't tell you how to build agents. We tell you how to run a company made of them.                               |
 | **Not a workflow builder.**  | No drag-and-drop pipelines. Taskcore models companies — with org charts, goals, budgets, and governance.            |
 | **Not a prompt manager.**    | Agents bring their own prompts, models, and runtimes. Taskcore manages the organization they work in.               |
 | **Not a single-agent tool.** | This is for teams. If you have one agent, you probably don't need Taskcore. If you have twenty — you definitely do. |
@@ -290,11 +288,6 @@ MIT &copy; 2026 KhulnaSoft, Ltd
 <br/>
 
 ---
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/khulnasoft/taskcore/master/doc/assets/footer.jpg" alt="" width="720" />
-</p>
-
 <p align="center">
   <sub>Open source under MIT. Built for people who want to run companies, not babysit agents.</sub>
 </p>
