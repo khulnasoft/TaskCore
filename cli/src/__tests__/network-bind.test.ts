@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolveRuntimeBind, validateConfiguredBindMode } from "@taskcore/shared";
+import {
+  resolveRuntimeBind,
+  validateConfiguredBindMode,
+} from "@taskcore/shared";
 import { buildPresetServerConfig } from "../config/server-bind.js";
 
 describe("network bind helpers", () => {
@@ -31,7 +34,9 @@ describe("network bind helpers", () => {
       host: "127.0.0.1",
     });
 
-    expect(resolved.errors).toContain("server.customBindHost is required when server.bind=custom");
+    expect(resolved.errors).toContain(
+      "server.customBindHost is required when server.bind=custom",
+    );
   });
 
   it("stores the detected tailscale address for tailnet presets", () => {

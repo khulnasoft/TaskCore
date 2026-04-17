@@ -15,7 +15,9 @@ afterEach(async () => {
 
 describe("resolveInlineSourceFromPath", () => {
   it("imports portable files from a zip archive instead of scanning the parent directory", async () => {
-    const tempDir = await mkdtemp(path.join(os.tmpdir(), "taskcore-company-import-zip-"));
+    const tempDir = await mkdtemp(
+      path.join(os.tmpdir(), "taskcore-company-import-zip-"),
+    );
     tempDirs.push(tempDir);
 
     const archivePath = path.join(tempDir, "taskcore-demo.zip");

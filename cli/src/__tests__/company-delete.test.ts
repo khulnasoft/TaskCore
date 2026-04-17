@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { Company } from "@taskcore/shared";
-import { assertDeleteConfirmation, resolveCompanyForDeletion } from "../commands/client/company.js";
+import {
+  assertDeleteConfirmation,
+  resolveCompanyForDeletion,
+} from "../commands/client/company.js";
 
 function makeCompany(overrides: Partial<Company>): Company {
   return {
@@ -43,7 +46,11 @@ describe("resolveCompanyForDeletion", () => {
   ];
 
   it("resolves by ID in auto mode", () => {
-    const result = resolveCompanyForDeletion(companies, "22222222-2222-2222-2222-222222222222", "auto");
+    const result = resolveCompanyForDeletion(
+      companies,
+      "22222222-2222-2222-2222-222222222222",
+      "auto",
+    );
     expect(result.issuePrefix).toBe("PAP");
   });
 
@@ -53,16 +60,25 @@ describe("resolveCompanyForDeletion", () => {
   });
 
   it("throws when selector is not found", () => {
-    expect(() => resolveCompanyForDeletion(companies, "MISSING", "auto")).toThrow(/No company found/);
+    expect(() =>
+      resolveCompanyForDeletion(companies, "MISSING", "auto"),
+    ).toThrow(/No company found/);
   });
 
   it("respects explicit id mode", () => {
-    expect(() => resolveCompanyForDeletion(companies, "PAP", "id")).toThrow(/No company found by ID/);
+    expect(() => resolveCompanyForDeletion(companies, "PAP", "id")).toThrow(
+      /No company found by ID/,
+    );
   });
 
   it("respects explicit prefix mode", () => {
-    expect(() => resolveCompanyForDeletion(companies, "22222222-2222-2222-2222-222222222222", "prefix"))
-      .toThrow(/No company found by shortname/);
+    expect(() =>
+      resolveCompanyForDeletion(
+        companies,
+        "22222222-2222-2222-2222-222222222222",
+        "prefix",
+      ),
+    ).toThrow(/No company found by shortname/);
   });
 });
 
@@ -73,11 +89,15 @@ describe("assertDeleteConfirmation", () => {
   });
 
   it("requires --yes", () => {
-    expect(() => assertDeleteConfirmation(company, { confirm: "PAP" })).toThrow(/requires --yes/);
+    expect(() => assertDeleteConfirmation(company, { confirm: "PAP" })).toThrow(
+      /requires --yes/,
+    );
   });
 
   it("accepts matching prefix confirmation", () => {
-    expect(() => assertDeleteConfirmation(company, { yes: true, confirm: "pap" })).not.toThrow();
+    expect(() =>
+      assertDeleteConfirmation(company, { yes: true, confirm: "pap" }),
+    ).not.toThrow();
   });
 
   it("accepts matching id confirmation", () => {
@@ -85,11 +105,13 @@ describe("assertDeleteConfirmation", () => {
       assertDeleteConfirmation(company, {
         yes: true,
         confirm: "22222222-2222-2222-2222-222222222222",
-      })).not.toThrow();
+      }),
+    ).not.toThrow();
   });
 
   it("rejects mismatched confirmation", () => {
-    expect(() => assertDeleteConfirmation(company, { yes: true, confirm: "nope" }))
-      .toThrow(/does not match target company/);
+    expect(() =>
+      assertDeleteConfirmation(company, { yes: true, confirm: "nope" }),
+    ).toThrow(/does not match target company/);
   });
 });
