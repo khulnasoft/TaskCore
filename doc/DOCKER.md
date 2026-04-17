@@ -14,10 +14,10 @@ The Dockerfile installs common agent tools (`git`, `gh`, `curl`, `wget`, `ripgre
 
 Build arguments:
 
-| Arg | Default | Purpose |
-|-----|---------|---------|
-| `USER_UID` | `1000` | UID for the container `node` user (match your host UID to avoid permission issues on bind mounts) |
-| `USER_GID` | `1000` | GID for the container `node` group |
+| Arg        | Default | Purpose                                                                                           |
+| ---------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `USER_UID` | `1000`  | UID for the container `node` user (match your host UID to avoid permission issues on bind mounts) |
+| `USER_GID` | `1000`  | GID for the container `node` group                                                                |
 
 ```sh
 docker build -t taskcore-local \
@@ -150,11 +150,11 @@ Notes:
 
 The `docker/quadlet/` directory contains unit files to run Taskcore + PostgreSQL as systemd services via Podman Quadlet.
 
-| File | Purpose |
-|------|---------|
-| `docker/quadlet/taskcore.pod` | Pod definition — groups containers into a shared network namespace |
-| `docker/quadlet/taskcore.container` | Taskcore server — joins the pod, connects to Postgres at `127.0.0.1` |
-| `docker/quadlet/taskcore-db.container` | PostgreSQL 17 — joins the pod, health-checked |
+| File                                   | Purpose                                                              |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| `docker/quadlet/taskcore.pod`          | Pod definition — groups containers into a shared network namespace   |
+| `docker/quadlet/taskcore.container`    | Taskcore server — joins the pod, connects to Postgres at `127.0.0.1` |
+| `docker/quadlet/taskcore-db.container` | PostgreSQL 17 — joins the pod, health-checked                        |
 
 ### Setup
 
@@ -206,7 +206,7 @@ systemctl --user stop taskcore-pod      # Stop all
 
 ### Quadlet notes
 
-- **First boot**: Unlike Docker Compose's `condition: service_healthy`, Quadlet's `After=` only waits for the DB unit to *start*, not for PostgreSQL to be ready. On a cold first boot you may see one or two restart attempts in `journalctl --user -u taskcore` while PostgreSQL initialises — this is expected and resolves automatically via `Restart=on-failure`.
+- **First boot**: Unlike Docker Compose's `condition: service_healthy`, Quadlet's `After=` only waits for the DB unit to _start_, not for PostgreSQL to be ready. On a cold first boot you may see one or two restart attempts in `journalctl --user -u taskcore` while PostgreSQL initialises — this is expected and resolves automatically via `Restart=on-failure`.
 - Containers in a pod share `localhost`, so Taskcore reaches Postgres at `127.0.0.1:5432`.
 - PostgreSQL data persists in the `taskcore-pgdata` named volume.
 - Taskcore data persists at `~/.local/share/taskcore`.

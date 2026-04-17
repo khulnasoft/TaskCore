@@ -28,21 +28,21 @@ Success means one operator can run a small AI-native company end-to-end with cle
 
 These decisions close open questions from `SPEC.md` for V1.
 
-| Topic | V1 Decision |
-|---|---|
-| Tenancy | Single-tenant deployment, multi-company data model |
-| Company model | Company is first-order; all business entities are company-scoped |
-| Board | Single human board operator per deployment |
-| Org graph | Strict tree (`reports_to` nullable root); no multi-manager reporting |
-| Visibility | Full visibility to board and all agents in same company |
-| Communication | Tasks + comments only (no separate chat system) |
-| Task ownership | Single assignee; atomic checkout required for `in_progress` transition |
-| Recovery | No automatic reassignment; work recovery stays manual/explicit |
-| Agent adapters | Built-in `process` and `http` adapters |
-| Auth | Mode-dependent human auth (`local_trusted` implicit board in current code; authenticated mode uses sessions), API keys for agents |
-| Budget period | Monthly UTC calendar window |
-| Budget enforcement | Soft alerts + hard limit auto-pause |
-| Deployment modes | Canonical model is `local_trusted` + `authenticated` with `private/public` exposure policy (see `doc/DEPLOYMENT-MODES.md`) |
+| Topic              | V1 Decision                                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| Tenancy            | Single-tenant deployment, multi-company data model                                                                                |
+| Company model      | Company is first-order; all business entities are company-scoped                                                                  |
+| Board              | Single human board operator per deployment                                                                                        |
+| Org graph          | Strict tree (`reports_to` nullable root); no multi-manager reporting                                                              |
+| Visibility         | Full visibility to board and all agents in same company                                                                           |
+| Communication      | Tasks + comments only (no separate chat system)                                                                                   |
+| Task ownership     | Single assignee; atomic checkout required for `in_progress` transition                                                            |
+| Recovery           | No automatic reassignment; work recovery stays manual/explicit                                                                    |
+| Agent adapters     | Built-in `process` and `http` adapters                                                                                            |
+| Auth               | Mode-dependent human auth (`local_trusted` implicit board in current code; authenticated mode uses sessions), API keys for agents |
+| Budget period      | Monthly UTC calendar window                                                                                                       |
+| Budget enforcement | Soft alerts + hard limit auto-pause                                                                                               |
+| Deployment modes   | Canonical model is `local_trusted` + `authenticated` with `private/public` exposure policy (see `doc/DEPLOYMENT-MODES.md`)        |
 
 ## 4. Current Baseline (Repo Snapshot)
 
@@ -426,17 +426,17 @@ Detailed ownership, execution, blocker, and crash-recovery semantics are documen
 
 ## 9.3 Permission Matrix (V1)
 
-| Action | Board | Agent |
-|---|---|---|
-| Create company | yes | no |
-| Hire/create agent | yes (direct) | request via approval |
-| Pause/resume agent | yes | no |
-| Create/update task | yes | yes |
-| Force reassign task | yes | limited |
-| Approve strategy/hire requests | yes | no |
-| Report cost | yes | yes |
-| Set company budget | yes | no |
-| Set subordinate budget | yes | yes (manager subtree only) |
+| Action                         | Board        | Agent                      |
+| ------------------------------ | ------------ | -------------------------- |
+| Create company                 | yes          | no                         |
+| Hire/create agent              | yes (direct) | request via approval       |
+| Pause/resume agent             | yes          | no                         |
+| Create/update task             | yes          | yes                        |
+| Force reassign task            | yes          | limited                    |
+| Approve strategy/hire requests | yes          | no                         |
+| Report cost                    | yes          | yes                        |
+| Set company budget             | yes          | no                         |
+| Set subordinate budget         | yes          | yes (manager subtree only) |
 
 ## 10. API Contract (REST)
 
@@ -574,7 +574,7 @@ Config shape:
   "command": "string",
   "args": ["string"],
   "cwd": "string",
-  "env": {"KEY": "VALUE"},
+  "env": { "KEY": "VALUE" },
   "timeoutSec": 900,
   "graceSec": 15
 }
@@ -595,9 +595,9 @@ Config shape:
 {
   "url": "https://...",
   "method": "POST",
-  "headers": {"Authorization": "Bearer ..."},
+  "headers": { "Authorization": "Bearer ..." },
   "timeoutMs": 15000,
-  "payloadTemplate": {"agentId": "{{agent.id}}", "runId": "{{run.id}}"}
+  "payloadTemplate": { "agentId": "{{agent.id}}", "runId": "{{run.id}}" }
 }
 ```
 
