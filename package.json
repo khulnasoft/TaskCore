@@ -37,13 +37,20 @@
     "evals:smoke": "cd evals/promptfoo && npx promptfoo@0.103.3 eval",
     "test:release-smoke": "npx playwright test --config tests/release-smoke/playwright.config.ts",
     "test:release-smoke:headed": "npx playwright test --config tests/release-smoke/playwright.config.ts --headed",
-    "metrics:taskcore-commits": "tsx scripts/taskcore-commit-metrics.ts"
+    "metrics:taskcore-commits": "tsx scripts/taskcore-commit-metrics.ts",
+    "format": "npx prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css}\"",
+    "format:check": "npx prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css}\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
+    "@eslint/js": "^9.18.0",
     "@playwright/test": "^1.58.2",
     "cross-env": "^10.1.0",
     "esbuild": "^0.27.3",
+    "eslint": "^9.18.0",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
     "vitest": "^3.0.5"
   },
   "engines": {
