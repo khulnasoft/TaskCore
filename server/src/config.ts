@@ -12,6 +12,7 @@ import {
   DEPLOYMENT_MODES,
   SECRET_PROVIDERS,
   STORAGE_PROVIDERS,
+  resolvePostgresUrlFromEnv,
   type BindMode,
   type AuthBaseUrlMode,
   type DeploymentExposure,
@@ -296,7 +297,7 @@ export function loadConfig(): Config {
     authPublicBaseUrl,
     authDisableSignUp,
     databaseMode: fileDatabaseMode,
-    databaseUrl: process.env.DATABASE_URL ?? fileDbUrl,
+    databaseUrl: resolvePostgresUrlFromEnv() ?? fileDbUrl,
     embeddedPostgresDataDir: resolveHomeAwarePath(
       fileConfig?.database.embeddedPostgresDataDir ?? resolveDefaultEmbeddedPostgresDir(),
     ),

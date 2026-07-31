@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { resolvePostgresUrlFromEnv } from "@taskcore/shared";
 
 const DEFAULT_INSTANCE_ID = "default";
 const CONFIG_BASENAME = "config.json";
@@ -217,7 +218,7 @@ export function resolveDatabaseTarget(): ResolvedDatabaseTarget {
   const envPath = resolveTaskcoreEnvPath(configPath);
   const envEntries = readEnvEntries(envPath);
 
-  const envUrl = process.env.DATABASE_URL?.trim();
+  const envUrl = resolvePostgresUrlFromEnv();
   if (envUrl) {
     return {
       mode: "postgres",
