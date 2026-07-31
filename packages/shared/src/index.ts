@@ -1,4 +1,5 @@
 export { agentAdapterTypeSchema, optionalAgentAdapterTypeSchema } from "./adapter-type.js";
+export { resolvePostgresUrlFromEnv } from "./vercel-postgres.js";
 export {
   COMPANY_STATUSES,
   DEPLOYMENT_MODES,
