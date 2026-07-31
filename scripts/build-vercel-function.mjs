@@ -31,7 +31,7 @@ await mkdir(path.dirname(outfile), { recursive: true });
 
 const serverPkg = JSON.parse(
   readFileSync(path.join(repoRoot, "server/package.json"), "utf8"),
-) as { version?: string };
+);
 
 const nativeExternal = [
   "sharp",
@@ -43,6 +43,45 @@ const nativeExternal = [
   "jsdom",
 ];
 
+/**
+ * Keep every npm dependency external so the bundle stays ESM-clean (no
+ * esbuild CJS `require` shims that break in the Vercel Node runtime) and so
+ * Vercel's file tracer can include them from node_modules. Workspace
+ * packages (`@taskcore/*`) resolve to TypeScript source outside node_modules
+ * and stay bundled, which is the whole point of the single-file function.
+ */
+const externalizeNodeModules = {
+  name: "externalize-node-modules",
+  setup(build) {
+    // One shared verdict per package name so concurrent importers agree on
+    // external vs bundled (esbuild processes resolve callbacks in batches).
+    const verdicts = new Map();
+    const resolveVerdict = (args) => {
+      const existing = verdicts.get(args.path);
+      if (existing) return existing;
+      const verdict = build
+        .resolve(args.path, {
+          importer: args.importer,
+          resolveDir: args.resolveDir,
+          kind: args.kind,
+        })
+        .then((result) => {
+          if (result.errors.length > 0) {
+            return { errors: result.errors };
+          }
+          if (result.path.includes("/node_modules/")) {
+            return { path: args.path, external: true };
+          }
+          return null;
+        })
+        .finally(() => verdicts.delete(args.path));
+      verdicts.set(args.path, verdict);
+      return verdict;
+    };
+    build.onResolve({ filter: /^[^./]/ }, (args) => resolveVerdict(args));
+  },
+};
+
 try {
   await build({
     entryPoints: [entry],
@@ -52,6 +91,7 @@ try {
     format: "esm",
     target: "node20",
     external: nativeExternal,
+    plugins: [externalizeNodeModules],
     logLevel: "info",
     legalComments: "none",
     define: {

@@ -142,3 +142,5 @@ This prevents lockout when a user migrates from long-running local trusted usage
 - implementation plan: `doc/plans/deployment-auth-mode-consolidation.md`
 - V1 contract: `doc/SPEC-implementation.md`
 - operator workflows: `doc/DEVELOPING.md` and `doc/CLI.md`
+- Vercel deployment: `doc/VERCEL.md`
+
