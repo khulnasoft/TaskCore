@@ -12,6 +12,7 @@
     "dev:server": "pnpm --filter @taskcore/server dev",
     "dev:ui": "pnpm --filter @taskcore/ui dev",
     "build": "pnpm run preflight:workspace-links && pnpm -r build",
+    "vercel:build": "pnpm run preflight:workspace-links && pnpm -r build && node scripts/build-vercel-function.mjs",
     "typecheck": "pnpm run preflight:workspace-links && pnpm -r typecheck",
     "test": "pnpm run test:run",
     "test:watch": "pnpm run preflight:workspace-links && vitest",

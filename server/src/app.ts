@@ -114,6 +114,7 @@ export async function createApp(
   },
 ) {
   const app = express();
+  const pluginsEnabled = process.env.TASKCORE_PLUGINS_ENABLED !== "false";
 
   app.use(express.json({
     // Company import/export payloads can inline full portable packages.
@@ -337,8 +338,13 @@ export async function createApp(
 
   app.use(errorHandler);
 
-  jobCoordinator.start();
-  scheduler.start();
+  if (pluginsEnabled) {
+    jobCoordinator.start();
+    scheduler.start();
+    void toolDispatcher.initialize().catch((err) => {
+      logger.error({ err }, "Failed to initialize plugin tool dispatcher");
+    });
+  }
   const feedbackExportTimer = opts.feedbackExportService
     ? setInterval(() => {
       void opts.feedbackExportService?.flushPendingFeedbackTraces().catch((err) => {
@@ -352,25 +358,24 @@ export async function createApp(
       logger.error({ err }, "Failed to flush pending feedback exports");
     });
   }
-  void toolDispatcher.initialize().catch((err) => {
-    logger.error({ err }, "Failed to initialize plugin tool dispatcher");
-  });
-  const devWatcher = opts.uiMode === "vite-dev"
+  const devWatcher = pluginsEnabled && opts.uiMode === "vite-dev"
     ? createPluginDevWatcher(
       lifecycle,
       async (pluginId) => (await pluginRegistry.getById(pluginId))?.packagePath ?? null,
     )
     : null;
-  void loader.loadAll().then((result) => {
-    if (!result) return;
-    for (const loaded of result.results) {
-      if (devWatcher && loaded.success && loaded.plugin.packagePath) {
-        devWatcher.watch(loaded.plugin.id, loaded.plugin.packagePath);
+  if (pluginsEnabled) {
+    void loader.loadAll().then((result) => {
+      if (!result) return;
+      for (const loaded of result.results) {
+        if (devWatcher && loaded.success && loaded.plugin.packagePath) {
+          devWatcher.watch(loaded.plugin.id, loaded.plugin.packagePath);
+        }
       }
-    }
-  }).catch((err) => {
-    logger.error({ err }, "Failed to load ready plugins on startup");
-  });
+    }).catch((err) => {
+      logger.error({ err }, "Failed to load ready plugins on startup");
+    });
+  }
   process.once("exit", () => {
     if (feedbackExportTimer) clearInterval(feedbackExportTimer);
     devWatcher?.close();
