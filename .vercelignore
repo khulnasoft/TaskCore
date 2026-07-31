@@ -1,0 +1,93 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Build outputs (except what we need)
+**/dist
+!ui/dist
+**/build
+**/*.tsbuildinfo
+
+# Development
+.env.development.local
+.env.local
+.env.*.local
+.env.example
+
+# Testing & Coverage
+tests/
+coverage/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+vitest.config.ts
+playwright.config.ts
+**/jest.config.*
+
+# Documentation
+docs/
+doc/
+**/*.md
+CHANGELOG.md
+README.md
+CONTRIBUTING.md
+
+# Examples & Evaluation
+packages/plugins/examples/
+evals/
+
+# Version Control & CI
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# Build systems
+.turbo/
+Turbofile
+turbo.json
+
+# Docker
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Package management
+.npmrc
+.yarnrc
+.pnpmfile.cjs
+
+# Miscellaneous
+.vercel/
+.env.cache*
+patches/
+scripts/
+AGENTS.md
+ROADMAP.md
+SECURITY.md
+adapter-plugin.md
+LICENSE
+.mailmap
+
+# Evals
+evals/
+promptfoo*
+
+# Release artifacts
+releases/
+
+# Smoke tests
+smoke/
