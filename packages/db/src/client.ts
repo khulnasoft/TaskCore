@@ -45,8 +45,16 @@ export type MigrationState =
       reason: "no-migration-journal-empty-db" | "no-migration-journal-non-empty-db" | "pending-migrations";
     };
 
-export function createDb(url: string) {
-  const sql = postgres(url);
+export type CreateDbOptions = {
+  max?: number;
+  prepare?: boolean;
+};
+
+export function createDb(url: string, options?: CreateDbOptions) {
+  const opts: Record<string, unknown> = {};
+  if (options?.max !== undefined) opts.max = options.max;
+  if (options?.prepare !== undefined) opts.prepare = options.prepare;
+  const sql = postgres(url, opts);
   return drizzlePg(sql, { schema });
 }
 

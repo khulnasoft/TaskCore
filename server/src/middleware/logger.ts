@@ -1,10 +1,13 @@
 import path from "node:path";
-import fs from "node:fs";
 import pino from "pino";
 import { pinoHttp } from "pino-http";
 import { readConfigFile } from "../config-file.js";
 import { resolveDefaultLogsDir, resolveHomeAwarePath } from "../home-paths.js";
 import { shouldSilenceHttpSuccessLog } from "./http-log-policy.js";
+
+function isServerlessRuntime(): boolean {
+  return process.env.VERCEL === "1" || process.env.NOW === "1";
+}
 
 function resolveServerLogDir(): string {
   const envOverride = process.env.TASKCORE_LOG_DIR?.trim();
@@ -17,9 +20,6 @@ function resolveServerLogDir(): string {
 }
 
 const logDir = resolveServerLogDir();
-fs.mkdirSync(logDir, { recursive: true });
-
-const logFile = path.join(logDir, "server.log");
 
 const sharedOpts = {
   translateTime: "SYS:HH:MM:ss",
@@ -27,23 +27,30 @@ const sharedOpts = {
   singleLine: true,
 };
 
-export const logger = pino({
-  level: "debug",
-  redact: ["req.headers.authorization"],
-}, pino.transport({
-  targets: [
-    {
-      target: "pino-pretty",
-      options: { ...sharedOpts, ignore: "pid,hostname,req,res,responseTime", colorize: true, destination: 1 },
-      level: "info",
-    },
-    {
-      target: "pino-pretty",
-      options: { ...sharedOpts, colorize: false, destination: logFile, mkdir: true },
+// Serverless runtimes (e.g. Vercel Functions) have read-only filesystems and
+// cannot run pino worker transports. Log to stdout only in that case.
+export const logger = isServerlessRuntime()
+  ? pino({
+      level: process.env.LOG_LEVEL?.trim() || "info",
+      redact: ["req.headers.authorization"],
+    })
+  : pino({
       level: "debug",
-    },
-  ],
-}));
+      redact: ["req.headers.authorization"],
+    }, pino.transport({
+      targets: [
+        {
+          target: "pino-pretty",
+          options: { ...sharedOpts, ignore: "pid,hostname,req,res,responseTime", colorize: true, destination: 1 },
+          level: "info",
+        },
+        {
+          target: "pino-pretty",
+          options: { ...sharedOpts, colorize: false, destination: path.join(logDir, "server.log"), mkdir: true },
+          level: "debug",
+        },
+      ],
+    }));
 
 export const httpLogger = pinoHttp({
   logger,
